@@ -9,6 +9,7 @@ import pandas as pd
 import statsmodels.api as sm
 import matplotlib
 import seaborn as sns
+from datetime import datetime
 
 matplotlib.rcParams['axes.labelsize'] = 14
 matplotlib.rcParams['xtick.labelsize'] = 12
@@ -21,10 +22,7 @@ data = pd.read_csv('sampled_ts_train.csv', keep_default_na=False)
 
 
 data['sales'].plot()
-
 data['store_region'].value_counts().plot(kind='bar')
-
-
 data['sku_category'].value_counts().sort_values()
 data['sku_department'].value_counts()
 
@@ -32,13 +30,9 @@ HighSales = data[data['sku_key'] == 48676]
 HighSales.head()
 
 
-from datetime import datetime
 con=HighSales['tran_date']
 HighSales['tran_date']=pd.to_datetime(HighSales['tran_date'])
 HighSales.set_index('tran_date', inplace=True)
-#check datatype of index
-HighSales.index
-
 
 # ### Exploring the rate of sales of sku_key 48676
 
