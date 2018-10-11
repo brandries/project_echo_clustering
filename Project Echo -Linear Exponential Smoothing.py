@@ -161,11 +161,6 @@ test2['sales'].plot()
 # ### We can see that there is a lot of null values in our data, which is characteristic of intermittent demand
 
 train2['sales'].value_counts().head(10)
-
-
-# In[48]:
-
-
 test2['sales'].value_counts().head(10)
 
 
@@ -173,40 +168,17 @@ test2['sales'].value_counts().head(10)
 
 # ### Scaling our sales data from daily to a weekly aggregation level
 
-# In[49]:
-
-
 #train = train2.resample('W').sum()
 #train.head(1)
-
-
-# In[50]:
 
 
 #test = test2.resample('W').sum()
 #test.head(1)
 
 
-# In[51]:
-
-
-train.columns
-
-
-# In[52]:
-
-
-train2.columns
-
-
 # ### Our aggregation has removed all zero demand occurrences. We will disaggregate our data later after making our forecasts.
 
 # Let’s visualize the data (train and test together) to know how it varies over a time period.
-# 
-# 
-
-# In[53]:
-
 
 #Plotting data
 train2['sales'].plot(figsize=(15,8), title= 'Sales of item with sku_key 48676', fontsize=14)
@@ -216,9 +188,6 @@ plt.show()
 
 # # Linear Exponential Smoothing Implementation
 
-# In[54]:
-
-
 # Initialize parameters
 y_hat = 1
 tau = 1
@@ -226,24 +195,13 @@ tau_hat = 1
 alpha = 0.1
 beta = 0.1
 
-
-# In[55]:
-
-
 series = train2['sales']
-
-
-# In[56]:
-
 
 series.plot()
 plt.show()
 
 
 # ### Calculating our inter-demand interval
-
-# In[57]:
-
 
 my_list = list() # for the entire training set
 my_list2 = list() # for sku_key = 48676
@@ -258,41 +216,18 @@ def inter_demand_interval(series, my_list):
             my_list.append(count)
 
 
-# In[58]:
-
-
 inter_demand_interval(train['sales'],my_list)
 print(my_list)
-
-
-# In[59]:
-
 
 # on item with sku_key = 48676
 inter_demand_interval(train2['sales'], my_list2)
 print(my_list2)
 
-
-# In[60]:
-
-
 train['inter_demand_interval'] = my_list
-
-
-# In[61]:
-
-
 train2['inter_demand_interval'] = my_list2
-
-
-# In[62]:
-
 
 train2['inter_demand_interval'].plot(figsize=(15,8),title='Inter-demand interval for sku_key 48676')
 plt.show()
-
-
-# In[63]:
 
 
 def smoothed_demand(demand,alpha=None):
@@ -301,26 +236,12 @@ def smoothed_demand(demand,alpha=None):
         smoothed_demand.append(alpha*demand[n] + (1-alpha) * smoothed_demand[n-1])
     return smoothed_demand
 
-
-# In[64]:
-
-
 train2['smoothed_demand'] = smoothed_demand(train2['sales'], alpha=0.8)
-
-
-# In[65]:
-
-
 train2.columns
 
 
-# In[66]:
-
 
 train2[['sales','smoothed_demand']].plot(figsize = (16,12))
-
-
-# In[67]:
 
 
 def smoothed_inter_demand_interval(inter_demand_inverval,beta=None):
@@ -330,21 +251,14 @@ def smoothed_inter_demand_interval(inter_demand_inverval,beta=None):
     return smoothed_inter_demand_interval
 
 
-# In[68]:
-
 
 train2['smoothed_inter_demand_interval'] = smoothed_inter_demand_interval(train2['inter_demand_interval'], beta=0.1)
-
-
-# In[69]:
 
 
 train2[['inter_demand_interval','smoothed_inter_demand_interval']].plot(figsize = (16,12))
 
 
 # ## Calculating our forecast
-
-# In[70]:
 
 
 def my_forecast(sales,smoothed_demand, inter_demand_interval, smoothed_inter_demand_interval, beta):
@@ -361,42 +275,22 @@ def my_forecast(sales,smoothed_demand, inter_demand_interval, smoothed_inter_dem
                          forecast.append((k/j) * (1 - beta*l/ 2*j))
 
 
-# In[71]:
-
-
 sales = train2['sales']
 inter_demand_interval = train2['inter_demand_interval']
 smoothed_demand = train2['smoothed_demand']
 smoothed_inter_demand_interval = train2['smoothed_inter_demand_interval']
 
-
-# In[72]:
-
-
 train2['forecast'] = my_forecast(sales,smoothed_demand,inter_demand_interval, smoothed_inter_demand_interval,0.1)
-
-
-# In[ ]:
-
 
 train2[['sales','forecast']].plot()
 
 
 # ### Alternative
 
-# In[ ]:
-
-
 train2[['sales','forecast','smoothed_demand','smoothed_inter_demand_interval']]
 
 
-# In[ ]:
-
-
 train2[['sales','forecast']].plot()
-
-
-# In[96]:
 
 
 def result(sales,smoothed_demand, inter_demand_interval, smoothed_inter_demand_interval, beta):
@@ -414,16 +308,10 @@ def result(sales,smoothed_demand, inter_demand_interval, smoothed_inter_demand_i
     return my_forecast
 
 
-# In[97]:
-
-
 sales = train2['sales']
 inter_demand_interval = train2['inter_demand_interval']
 smoothed_demand = train2['smoothed_demand']
 smoothed_inter_demand_interval = train2['smoothed_inter_demand_interval']
-
-
-# In[98]:
 
 
 train2['forecast'] = result(sales,smoothed_demand,inter_demand_interval,smoothed_inter_demand_interval,1)
