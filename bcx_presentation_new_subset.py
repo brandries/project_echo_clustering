@@ -1,26 +1,25 @@
 
-import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from datetime import datetime as dt
-from sklearn.metrics import mean_squared_error
-from sklearn.preprocessing import MinMaxScaler
-from sklearn import metrics
-get_ipython().run_line_magic('matplotlib', 'inline')
+# BLIND 90 Days
 import datetime
-import keras
-from keras import Sequential
-from keras.layers import LSTM, Dense
-import keras.backend as K
-from keras.callbacks import EarlyStopping
 import time
+from datetime import datetime as dt
+
+import keras
+import keras.backend as K
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import tensorflow as tf
-from matplotlib import rc
-from TimeSeriesPrediction import *
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
-from keras.optimizers import Adam
+from keras import Sequential
+from keras.callbacks import EarlyStopping
+from keras.layers import LSTM, Dense
 from keras.models import load_model
+from keras.optimizers import Adam
+from matplotlib import rc
+from sklearn import metrics
+from sklearn.metrics import mean_squared_error
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from TimeSeriesPrediction import *
 
 
 font = {'family' : 'sans-serif',
@@ -55,7 +54,7 @@ def parameterize_output(x, threshold=0.5):
     where 0 is all 0's and 0.5 is no zeros.
     
     '''
-    import math
+    
     chance = np.random.uniform()
     if chance <= threshold:
         return np.round(x)
@@ -146,6 +145,8 @@ X_train, X_test, y_train, y_test = ts.train_test_split(X, y, 0.8)
 ts.plot_timeseries('sales')
 
 ## Model all features:
+#Write this as a function:
+
 print('Training the model:')
 early_stop = EarlyStopping(monitor='val_loss', patience=5, verbose=1)
 K.clear_session()
@@ -173,7 +174,7 @@ groupings = full_sales[['sku_key', 'store_key', 'sales']].groupby(['sku_key', 's
 #I think this will be the place where you do the full evaluation, looping through this list, predicting each and then getting the sum of the MSE's
 subset_df = full_sales[(full_sales['sku_key']==47593)&(full_sales['store_key'] == 4)]
 
-
+#Write basic preprocessing as a function. Re-evaluate the classes you wrote
 ts = TimeSeriesModelling(subset_df)
 df = ts.scale_data(subset_df, scaler=scaler, values_index='sales')
 df = pd.DataFrame(df, columns=['sales'])
@@ -208,8 +209,6 @@ train.tail(1)
 test.head(1)
 
 
-# BLIND 90 Days
-import datetime
 predicted = []
 
 zeros = ((train['sales'] == 0).sum() / len(train))
@@ -415,4 +414,3 @@ print('MSE: %.3f' % mse)
 
 
 test_df.iloc[:,1].sum()
-

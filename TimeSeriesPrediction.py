@@ -37,7 +37,7 @@ class TimeSeriesModelling():
         full_extra.reset_index(inplace=True, drop=True)
         #full_extra = scaler.transform(full_extra)
         self.X = pd.DataFrame(self.X.reshape(self.X.shape[0], self.X.shape[2]),
-                              columns=['sales'.format(x) for x in range(self.X.shape[2])]).join(pd.DataFrame(full_extra))
+                              columns=['sales']).join(pd.DataFrame(full_extra))
         self.X = self.X.values.reshape(self.X.shape[0], 1, self.X.shape[1])
         return self.X
 
