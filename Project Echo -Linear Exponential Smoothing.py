@@ -1,88 +1,23 @@
-
-# coding: utf-8
-
 # # Importing of modules
-
-# In[1]:
-
-
-# Module imports
 from math import sqrt
 from datetime import datetime
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn; seaborn.set()
 
-
-# # Loading of data
-
-# In[2]:
-
-
 # Load training data
 train = pd.read_csv('sampled_ts_train.csv')
-
-
-# In[3]:
-
-
 test = pd.read_csv('sampled_ts_test.csv')
 
 
 # # Exploratory data analysis
-
-# In[4]:
-
-
-train.head(1) 
-
-
-# In[5]:
-
-
-train.tail(1)
-
-
-# In[6]:
-
-
-test.head(1)
-
-
-# In[7]:
-
-
-test.tail(1)
-
-
-# In[8]:
-
-
-train.dtypes
-
-
 # ### Note: 
 # From just looking at the object data types, we can see that the tran_data aka the transaction date is not in right format.  We will write and employ a custom function to parse the date into the right format.
 
 # ### Note:
 # 
 # At a glance, for store_grading, there appears to be NaN values which we will have to explore further. Ideally, the transaction date or date in general should be our index column.
-
-# ## Checking for null values in our data
-
-# In[9]:
-
-
-train.isnull().sum()
-
-
-# ### Note:
-# 
-# We see that there is a substantial number of null values being counted, which merits further investigation.
-
-# In[10]:
 
 
 # Getting all unique store regions
@@ -92,9 +27,6 @@ store_regions
 
 # ### Clarification of store region
 # Our project leader were able to get further information from our client.  nan values in the store regions actually means Namibia and will be coded as such.
-
-# In[11]:
-
 
 # Getting all unique store gradings
 store_grading = set(train['store_grading'])
@@ -107,46 +39,19 @@ store_grading
 # ## Sanity check: Value counts 
 # We need to do value counts before and after data preprocessing to ensure that we do not discard data without due consideration for data integrity.
 
-# In[12]:
-
-
 columns = train.columns
-columns
-
-
-# In[13]:
-
-
-train.info()
-
 
 # ## Note:
 # From just looking at the dataframe or raw data, it is not very clear what hidden data issues might still be present over and above what we have already explored.  
 # 
 # We will now visually explore our data. After all, a picture is worth a thousand words.
 
-# In[14]:
-
-
-train.head(1)
-
 
 # ## Plotting of our our continuous variables, namely sales, selling_price and avg_discount
-
-# In[15]:
-
-
-train.columns
-
-
-# In[16]:
 
 
 cols = ['store_key', 'sku_key', 'selling_price', 'avg_discount', 'store_region', 
         'store_grading', 'sku_department', 'sku_subdepartment', 'sku_category', 'sku_subcategory']
-
-
-# In[17]:
 
 
 for col in cols:
@@ -159,16 +64,11 @@ for col in cols:
 
 # ## Exploring sales by sku (stock keeping unit or item on sale)
 
-# In[18]:
-
 
 for i in train['sku_key'].unique():
     print('Item with sku_key {}'.format(i))
     train[train['sku_key']==i]['sales'].plot()
     plt.show()
-
-
-# In[19]:
 
 
 for i in test['sku_key'].unique():
@@ -179,26 +79,12 @@ for i in test['sku_key'].unique():
 
 # ## Plotting sum of all sales by transaction date
 
-# In[20]:
-
-
 all_sales = train.reset_index().groupby('tran_date').sum()['sales']
-
-
-# In[21]:
-
-
 all_sales2 = test.reset_index().groupby('tran_date').sum()['sales']
-
-
-# In[22]:
 
 
 all_sales.plot(figsize=(15,5))
 plt.show()
-
-
-# In[23]:
 
 
 all_sales2.plot(figsize=(15,5))
@@ -209,16 +95,10 @@ plt.show()
 
 # # Data preprocessing
 
-# In[24]:
-
 
 # Date parsing function
 def parse(x):
     return datetime.strptime(x, '%Y-%m-%d')
-
-
-# In[25]:
-
 
 # 1.Load training data
 # 2.Parsing the date into the appropriate format
@@ -227,31 +107,9 @@ def parse(x):
 train = pd.read_csv('sampled_ts_train.csv', parse_dates = ['tran_date'],
                    index_col='tran_date', date_parser=parse,keep_default_na=False)
 
-
-# In[26]:
-
-
 test = pd.read_csv('sampled_ts_test.csv', parse_dates = ['tran_date'],
                    index_col='tran_date', date_parser=parse,keep_default_na=False)
 
-
-# In[27]:
-
-
-train.head()
-
-
-# In[28]:
-
-
-# count all NaN values
-train.isnull().sum()
-
-
-# ### Note:
-# We see that there are no more NAN values any more, whereas the store grading can be taken as NULL, the store region might not yet be encoded properly.
-
-# In[29]:
 
 
 # Getting all unique store regions
@@ -262,28 +120,9 @@ store_regions
 # ## Sanity check: Post preprocessing
 # We are checking that no data values were discarded indiscriminately
 
-# In[30]:
-
-
-columns
-
-
-# In[31]:
-
-
-train.info()
-
-
-# In[32]:
-
-
 for col in cols:
     train.groupby(col).count().loc[:,'sales'].plot(kind='bar', figsize=(16,5))
     plt.show()
-
-
-# In[33]:
-
 
 for col in cols:
     test.groupby(col).count().loc[:,'sales'].plot(kind='bar', figsize=(16,5))
@@ -296,35 +135,12 @@ for col in cols:
 
 # ### Subsetting data - drop all columns except tran_date, sku_key and sales
 
-# In[34]:
-
-
 train2 = train.copy()
-
-
-# In[35]:
-
-
 train2 = train2.drop(['store_key','selling_price', 'avg_discount',
        'store_region', 'store_grading', 'sku_department', 'sku_subdepartment',
        'sku_category', 'sku_subcategory'], axis=1)
 
-
-# In[36]:
-
-
-train2.columns
-
-
-# In[37]:
-
-
 test2 =test.copy()
-
-
-# In[38]:
-
-
 test2 = test2.drop(['store_key','selling_price', 'avg_discount',
        'store_region', 'store_grading', 'sku_department', 'sku_subdepartment',
        'sku_category', 'sku_subcategory'], axis=1)
@@ -332,58 +148,17 @@ test2 = test2.drop(['store_key','selling_price', 'avg_discount',
 
 # #### Selecting for item with sku_key = 48676
 
-# In[39]:
-
-
 filter1 = train2['sku_key'] == 48676
-
-
-# In[40]:
-
-
 filter2 = test2['sku_key'] == 48676
-
-
-# In[41]:
-
-
 train2 = train2[filter1]
-
-
-# In[42]:
-
-
 test2 = test2[filter2]
 
 
-# In[43]:
-
-
-train2.head(1)
-
-
-# In[44]:
-
-
-test2.head(1)
-
-
-# In[45]:
-
-
 train2['sales'].plot()
-
-
-# In[46]:
-
-
 test2['sales'].plot()
 
 
 # ### We can see that there is a lot of null values in our data, which is characteristic of intermittent demand
-
-# In[47]:
-
 
 train2['sales'].value_counts().head(10)
 
