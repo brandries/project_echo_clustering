@@ -2,7 +2,7 @@
 from sklearn import metrics
 import matplotlib.pyplot as plt
 import pandas as pd
-
+import numpy as np
 
 class TimeSeriesModelling():
     from sklearn import metrics
@@ -18,20 +18,6 @@ class TimeSeriesModelling():
     def scale_data(self, df, scaler, values_index):
         self.scaled = scaler.transform(df[values_index].values.reshape(-1,1))
         return self.scaled
-    
-    
-    def difference_data(self, scaled):
-        self.scaled = pd.DataFrame(scaled, columns=['sales'])
-        self.diff = self.scaled.diff()
-        self.diff = self.diff.dropna()
-        return self.diff
-        
-    def de_difference(self, diff_n):
-        origi = pd.concat([pd.DataFrame([0], columns=['sales']),
-                           pd.DataFrame(ts.scaled, columns=['sales']).iloc[2:,:]])
-        origi.reset_index(inplace=True, drop=True)
-        value = diff_n + origi
-        return value.dropna()
 
     
     def preprocessing(self, differenced, lagshift=1):
@@ -50,8 +36,8 @@ class TimeSeriesModelling():
         full_extra = full_extra.loc[(len(df) - len(self.X)):, list_feat]
         full_extra.reset_index(inplace=True, drop=True)
         #full_extra = scaler.transform(full_extra)
-        self.X = pd.DataFrame(ts.X.reshape(ts.X.shape[0], ts.X.shape[2]),
-                              columns=['sales'.format(x) for x in range(ts.X.shape[2])]).join(pd.DataFrame(full_extra))
+        self.X = pd.DataFrame(self.X.reshape(self.X.shape[0], self.X.shape[2]),
+                              columns=['sales'.format(x) for x in range(self.X.shape[2])]).join(pd.DataFrame(full_extra))
         self.X = self.X.values.reshape(self.X.shape[0], 1, self.X.shape[1])
         return self.X
 

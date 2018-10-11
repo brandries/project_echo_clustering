@@ -16,7 +16,7 @@ from keras.callbacks import EarlyStopping
 import time
 import tensorflow as tf
 from matplotlib import rc
-import * from TimeSeriesPrediction
+from TimeSeriesPrediction import *
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import StandardScaler
 from keras.optimizers import Adam
@@ -118,7 +118,7 @@ end = time.time()
 print('It took a full {} minutes to preprocess'.format((end-start)/60))
 
 cat = full_sales.columns[4:]
-print('The categoricals include {}'.format(cat)
+print('The categoricals include {}'.format(cat))
 
 scaler = MinMaxScaler()
 scaler.fit(full_sales['sales'].values.reshape(-1,1))
@@ -341,7 +341,7 @@ test['tran_date'] = pd.to_datetime(test['tran_date'])
 test.set_index('tran_date', inplace=True)
 
 
-print('Some of the last predictions: {}'.format(train.tail())
+print('Some of the last predictions: {}'.format(train.tail()))
 
 train['sales'] = train['sales'].astype('float')
 
