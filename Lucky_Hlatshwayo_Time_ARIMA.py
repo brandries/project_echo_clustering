@@ -1,13 +1,6 @@
-
-# coding: utf-8
-
-# In[34]:
-
-
 import warnings
 import itertools
 import numpy as np
-get_ipython().run_line_magic('matplotlib', 'inline')
 import matplotlib.pyplot as plt
 import seaborn as sns
 warnings.filterwarnings("ignore")
@@ -15,70 +8,28 @@ plt.style.use('fivethirtyeight')
 import pandas as pd
 import statsmodels.api as sm
 import matplotlib
+import seaborn as sns
+
 matplotlib.rcParams['axes.labelsize'] = 14
 matplotlib.rcParams['xtick.labelsize'] = 12
 matplotlib.rcParams['ytick.labelsize'] = 12
 matplotlib.rcParams['text.color'] = 'k'
 
 
-# In[35]:
-
-
 data = pd.read_csv('sampled_ts_train.csv', keep_default_na=False)
-data['store_grading'].replace({'NULL': 'No Grading'}, inplace = True)
-#data['store_grading'].dtype
-#data['store_grading'].head()
-
-
-# In[36]:
-
-
-data.tail()
-
-
-# ## Exploratory Data Analysis
-
-# In[37]:
+## Exploratory Data Analysis
 
 
 data['sales'].plot()
 
-
-# In[38]:
-
-
-import seaborn as sns
 data['store_region'].value_counts().plot(kind='bar')
-
-
-# In[39]:
 
 
 data['sku_category'].value_counts().sort_values()
 data['sku_department'].value_counts()
 
-
-# In[40]:
-
-
-#KWA = data[(data['store_region']=='KWA') & (data['sku_category']=='024')]
-#KWA.head()
-
-
-# In[41]:
-
-
 HighSales = data[data['sku_key'] == 48676]
 HighSales.head()
-
-
-# In[42]:
-
-
-#data.groupby('sku_key').count()['sales'].sort_values(ascending=False)
-
-
-# In[43]:
 
 
 from datetime import datetime
@@ -91,17 +42,10 @@ HighSales.index
 
 # ### Exploring the rate of sales of sku_key 48676
 
-# In[44]:
-
-
 #convert to time series:
 df = HighSales['sales']
 df.head() #Exploring sales in 2016
 df.describe()
-
-
-# In[45]:
-
 
 from statsmodels.tsa.stattools import adfuller
 def test_stationarity(HighSales):
@@ -133,26 +77,12 @@ def test_stationarity(HighSales):
 # Making the mean and variance to remain constant overtime, we are investigating if the mean and standard deviation follows the trends of sales.
 # Obviously can note that the time series is not stationary since the mean and standard deviation move in the direction of the sales 
 
-# In[46]:
-
-
 test_stationarity(df)
-#df.head()
-
 
 # #### Using Logarithmic to reduce the trend
 # We will be using smoothing method to reduce the trend: Rolling/Moving average
 
-# In[47]:
-
-
-#df_log = np.log(df)
-#plt.plot(df)
-
-
 # ### Using moving average to reduce the trend
-
-# In[48]:
 
 
 moving_avg = df.rolling(12).mean()
@@ -163,20 +93,10 @@ plt.figure(figsize = (25,25))
 
 # Subtracting the rolling mean from the moving average
 
-# In[49]:
-
-
 df_moving_avg_diff = df - moving_avg
 df_moving_avg_diff.head(13)
 
-
-# In[50]:
-
-
 df_moving_avg_diff.replace([np.inf, -np.inf], np.nan, inplace = True)
-
-
-# In[51]:
 
 
 df_moving_avg_diff.dropna(inplace = True)
@@ -185,9 +105,6 @@ df_moving_avg_diff.head()
 
 # ## Testing the stationarity after we used the moving average
 # we can observe that the mean and variance don't follow any specific trend, but vary slightly with the number of sales
-# 
-
-# In[52]:
 
 
 test_stationarity(df_moving_avg_diff)
@@ -197,15 +114,9 @@ test_stationarity(df_moving_avg_diff)
 
 # ### Using the exponential weight mean average to decrease our trend further
 
-# In[53]:
-
-
 exp_weighted_avg = df.ewm(com=0.5).mean()
 plt.plot(df)
 plt.plot(exp_weighted_avg, color = 'red')
-
-
-# In[54]:
 
 
 df_ewma_diff = df - exp_weighted_avg
@@ -213,11 +124,6 @@ df_ewma_diff.replace([np.inf, -np.inf], np.nan, inplace = True)
 df_ewma_diff.dropna(inplace = True)
 df_ewma_diff.head()
 
-
-# In[55]:
-
-
-#df_log_ewma_diff = df_log - exp_weighted_avg
 test_stationarity(df_ewma_diff)
 
 
@@ -231,16 +137,11 @@ test_stationarity(df_ewma_diff)
 
 # ## Differencing
 
-# In[56]:
-
 
 df_diff = df - df.shift(1)
 df_diff.replace([np.inf, -np.inf], np.nan, inplace = True)
 df_diff.dropna(inplace = True)
 df_diff.head()
-
-
-# In[57]:
 
 
 test_stationarity(df_diff)
@@ -250,24 +151,16 @@ test_stationarity(df_diff)
 
 # ## Seasonal Difference
 
-# In[58]:
-
 
 df_seasonal_difference = df - df.shift(12)
 df_seasonal_difference.replace([np.inf, -np.inf], np.nan, inplace = True)
 df_seasonal_difference.dropna(inplace = True)
 df_seasonal_difference.head()
 
-
-# In[59]:
-
-
 test_stationarity(df_seasonal_difference)
 
 
 # ## Decomposing
-
-# In[60]:
 
 
 from statsmodels.tsa.seasonal import seasonal_decompose
@@ -294,9 +187,6 @@ plt.tight_layout()
 
 # ## After removing the trend and seasonality, we have the following graph
 
-# In[61]:
-
-
 df_decompose = residual
 df_decompose.dropna(inplace=True)
 test_stationarity(df_decompose)
@@ -306,21 +196,11 @@ test_stationarity(df_decompose)
 
 # Plotting the Atocorrelation and Partial correlation to find the optimal parameters
 
-# In[62]:
-
 
 from statsmodels.tsa.stattools import acf, pacf
 
-
-# In[63]:
-
-
 lag_acf = acf(df_diff, nlags=20)
 lag_pacf = pacf(df_diff, nlags=20, method='ols')
-
-
-# In[64]:
-
 
 fig = plt.figure(figsize=(12,8))
 ax1 = fig.add_subplot(211)
@@ -331,13 +211,9 @@ fig = sm.graphics.tsa.plot_pacf(df_seasonal_difference.iloc[13:], lags=40, ax=ax
 
 # # Grid search(Hyperparameter optimization)
 
-# In[65]:
-
 
 from statsmodels.tsa.arima_model import ARIMA
 
-
-# In[66]:
 
 
 # Define the p, d and q parameters to take any value between 0 and 2
@@ -354,9 +230,6 @@ print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
 print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
-
-
-# In[67]:
 
 
 warnings.filterwarnings("ignore") # specify to ignore warning messages
@@ -379,9 +252,6 @@ for param in pdq:
 
 # ARIMA(1, 0, 1)x(1, 1, 1, 12) yields the lowest- AIC:1376.914929113491
 
-# In[68]:
-
-
 mod = sm.tsa.statespace.SARIMAX(df, 
                                 order=(0,1,1), 
                                 seasonal_order=(0,1,1,12),   
@@ -391,40 +261,21 @@ results = mod.fit()
 print(results.summary())
 
 
-# In[69]:
-
 
 results.resid.plot()
-
-
-# In[70]:
 
 
 print(results.resid.describe())
 
 
-# In[71]:
-
-
 results.resid.plot(kind='kde')
-
-
-# In[72]:
-
 
 results.plot_diagnostics(figsize=(15, 12))
 plt.show()
 
-
-# In[139]:
-
-
 pred = results.get_prediction(start =300, end = 390, dynamic=False)
 pred_ci = pred.conf_int()
 pred_ci.head()
-
-
-# In[140]:
 
 
 df_forecast = pred.predicted_mean
@@ -437,20 +288,11 @@ print('The Root Mean Square Error (RMSE) of the forcast: {:.4f}'
       .format(np.sqrt(sum((df_forecast-df_truth)**2)/len(df_forecast))))
 
 
-# In[141]:
-
-
 df_pred_concat = pd.concat([df_truth, df_forecast])
-
-
-# In[142]:
 
 
 pred_dynamic = results.get_prediction(start=pd.to_datetime('2017-08-01'), dynamic=True, full_results=True)
 pred_dynamic_ci = pred_dynamic.conf_int()
-
-
-# In[143]:
 
 
 ax = df['2016':].plot(label='observed', figsize=(20, 15))
@@ -474,9 +316,6 @@ plt.legend()
 plt.show()
 
 
-# In[144]:
-
-
 # Extract the predicted and true values of our time series
 df_forecast = pred_dynamic.predicted_mean
 df_original = df['2017-08-01':]
@@ -488,17 +327,11 @@ print('The Root Mean Square Error (RMSE) of the forcast: {:.4f}'
       .format(np.sqrt(sum((df_forecast-df_original)**2)/len(df_forecast))))
 
 
-# In[155]:
-
-
 # Get forecast of 10 years or 90 months steps ahead in future
 forecast = results.get_forecast(steps= 90)
 # Get confidence intervals of forecasts
 forecast_ci = forecast.conf_int()
 forecast_ci.head()
-
-
-# In[157]:
 
 
 ax = df.plot(label='observed', figsize=(20, 15))
