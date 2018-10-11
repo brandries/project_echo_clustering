@@ -64,7 +64,7 @@ def parameterize_output(x, threshold=0.5):
 def is_sales(sales):
     return pd.DataFrame([0 if x != 0 else 1 for x in sales], columns = ['is_sales'])
 
-df = pd.read_csv('../data/snapshot_full_df.csv')
+df = pd.read_csv('../Group Project Stage/snapshot_full_df.csv')
 df_train = df.copy()
 df_train.sort_values(['store_key', 'sku_key', 'tran_date'], inplace=True)
 
@@ -189,10 +189,12 @@ me.evaluate_model(X_train, X_test, y_train, y_test)
 me.plot_evaluation(y_train, y_test)
 
 #TODO : implement this part of the code somethere write the function
+save_model = False
+load_m = True
 if save_model == True:
     model.save('all_features_ann.h5')  # creates a HDF5 file 'my_model.h5'
 
-elif load_model == True:
+elif load_m == True:
     model = load_model('all_features_ann.h5')
 
 
@@ -267,10 +269,8 @@ for i in range(90):
     
     random_nr = np.random.uniform()
     
-    if random_nr < zeros/10:
-        changes.loc[:,'sales'] = 0
-        predicted.append(0)
-    elif random_nr < zeros/2:
+    
+    if random_nr < zeros/2:
         changes.loc[:,'sales'] = float(scaler.inverse_transform(predict).reshape(-1))/2
         predicted.append(float(scaler.inverse_transform(predict).reshape(-1))/2)
     else:
