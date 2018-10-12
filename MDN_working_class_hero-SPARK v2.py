@@ -1,47 +1,4 @@
 
-# coding: utf-8
-
-# In[ ]:
-
-
-#from google.cloud import bigquery
-#from google.oauth2 import service_account
-#
-#credentials = service_account.Credentials.from_service_account_file(
-#    './BCX-Insights-89e8cf3bed78.json')
-#
-#project_id = 'bcx-insights'
-#client = bigquery.Client(credentials= credentials,project=project_id)
-#
-#query_job = client.query("""
-#  SELECT *
-#  FROM echo_retail_insights.sales_timeseries_train
-#
-#  """)
-
-
-# In[ ]:
-
-
-#results = query_job.result()
-
-
-# In[ ]:
-
-
-#df = results.to_dataframe()
-
-
-# In[ ]:
-
-
-#df.to_csv('snapshot_full_df.csv#df_full = pd.read_csv('../../data/sampled_ts_train.csv', keep_default_na =False)
-#df = pd.read_csv('./snapshot_full_df.csv')')
-
-
-# In[136]:
-
-
 from pyspark.sql.functions import udf
 import pandas as pd
 import numpy as np
@@ -49,8 +6,6 @@ from pyspark.sql.window import Window
 from pyspark.sql.functions import col,lag
 import time
 
-
-# In[138]:
 
 
 # must do before importing pyplot or pylab
@@ -71,8 +26,6 @@ def show(fig):
     print("%html <div style='width:1200px'>"+ image.buf +"</div>")
 
 
-# In[139]:
-
 
 from datetime import datetime as dt
 from sklearn.metrics import mean_squared_error
@@ -90,17 +43,12 @@ import time
 import tensorflow as tf
 
 
-# In[140]:
-
 
 from matplotlib import rc
 font = {'family' : 'sans-serif',
         'size'   : 24}
 
 rc('font', **font)
-
-
-# In[106]:
 
 
 # create entry points to spark
@@ -114,13 +62,7 @@ sc=SparkContext()
 spark = SparkSession(sparkContext=sc)
 
 
-# In[107]:
-
-
 df_pd = pd.read_csv('sampled_ts_train.csv', keep_default_na=False)
-
-
-# In[108]:
 
 
 def make_min_max(df, sales_column, mins=True, maxes=True):
@@ -138,8 +80,6 @@ def make_min_max(df, sales_column, mins=True, maxes=True):
         return df
 
 
-# In[158]:
-
 
 start_time = time.time()
 
@@ -152,8 +92,6 @@ duration = (end_time - start_time)
 print("The process took: ",duration,'s')
 
 
-# In[113]:
-
 
 start_time = time.time()
 df_pd = make_min_max(df_pd,'sales')
@@ -161,8 +99,6 @@ end_time = time.time()
 duration = (end_time - start_time)
 print("The process took: ",duration,'s')
 
-
-# In[157]:
 
 
 start_time = time.time()
@@ -174,15 +110,6 @@ df = df_spark.withColumn('data_id',A(struct([df_spark[sales] for sales in df_spa
 end_time = time.time()
 duration = (end_time - start_time)
 print("The process took: ",duration,'s')
-
-
-# In[156]:
-
-
-df.printSchema()
-
-
-# In[114]:
 
 
 def periods_w_demand_new(df, sales_column):
@@ -203,17 +130,12 @@ def periods_w_demand_new(df, sales_column):
        return df.join(pd.DataFrame([nuls, not_nuls], index=['nuls', 'notnuls']).T)
 
 
-# In[115]:
-
-
 start_time = time.time()
 df_pd = periods_w_demand_new(df_pd,'sales')
 end_time = time.time()
 duration = (end_time - start_time)
 print("The process took: ",duration,'s')
 
-
-# In[116]:
 
 
 def make_aggregates(df, sales_column, aggregate_range = 10):
@@ -225,8 +147,6 @@ def make_aggregates(df, sales_column, aggregate_range = 10):
        return df
 
 
-# In[117]:
-
 
 start_time = time.time()
 df_pd = make_aggregates(df_pd,'sales')
@@ -235,25 +155,8 @@ duration = (end_time - start_time)
 print("The process took: ",duration,'s')
 
 
-# In[118]:
-
-
 df_spark = spark.createDataFrame(df_pd)
 
-
-# In[119]:
-
-
-df_spark.printSchema()
-
-
-# In[120]:
-
-
-df_spark.show(1)
-
-
-# In[121]:
 
 
 def date_features(df,timestamp_column):
@@ -274,37 +177,20 @@ def date_features(df,timestamp_column):
   return df
 
 
-# In[122]:
-
-
 df_spark = date_features(df_spark,'tran_date')
-
-
-# In[123]:
 
 
 df_spark.select('date','month','day','day_of_week','weekend','day_of_month','week_of_year','month_end','christmas').show()
 
 
-# In[124]:
-
-
-df_spark.columns
-
-
-# In[125]:
-
 
 from pyspark.sql.window import Window
 
-
-# In[126]:
 
 
 from pyspark.sql.functions import col,lag
 
 
-# In[127]:
 
 
 def sales_lag_7(df,lag_count=7):
@@ -317,19 +203,8 @@ def sales_lag_7(df,lag_count=7):
     return df
 
 
-# In[128]:
-
-
 df_spark = sales_lag_7(df_spark,7)
 
-
-# In[129]:
-
-
-df_spark.columns
-
-
-# In[130]:
 
 
 def shift_1(df,shift_count=1):
@@ -342,32 +217,17 @@ def shift_1(df,shift_count=1):
     return df
 
 
-# In[131]:
-
-
 df_spark = shift_1(df_spark, 1)
 
 
-# In[132]:
-
-
 df_spark.select("sales", "shift_1","sales_lag_7").show()
-
-
-# In[180]:
 
 
 # Specifying the schema programmatically
 import pyspark.sql.types as typ
 
 
-# In[183]:
-
-
 df_spark = df_spark.withColumn('store_key', df_spark['store_key'].cast(typ.StringType()))
-
-
-# In[184]:
 
 
 df_spark = df_spark.withColumn('sku_key', df_spark['sku_key'].cast(typ.StringType()))
@@ -376,14 +236,6 @@ df_spark = df_spark.withColumn('notnuls', df_spark['notnuls'].cast(typ.IntegerTy
 df_spark = df_spark.withColumn('day_of_month', df_spark['day_of_month'].cast(typ.StringType()))
 df_spark = df_spark.withColumn('week_of_year', df_spark['week_of_year'].cast(typ.StringType()))
 
-
-# In[185]:
-
-
-df_spark.printSchema()
-
-
-# In[ ]:
 
 
 '''#https://stackoverflow.com/questions/46767807/how-to-calculate-rolling-median-in-Pyspark-using-Window
@@ -394,8 +246,6 @@ mean_udf = udf(lambda x: float(np.mean(x)), FloatType())
 df_spark.withColumn('list',collect_list('sales').over(w)) \
 .withColumn('rolling_mean', mean_udf('list'))'''
 
-
-# In[186]:
 
 
 def get_dummy(df,categoricalCols,continuousCols,labelCol):
@@ -424,13 +274,8 @@ def get_dummy(df,categoricalCols,continuousCols,labelCol):
     return data.select('features','label')
 
 
-# In[187]:
-
-
 df = df_spark.na.drop()
 
-
-# In[188]:
 
 
 # Deal with categorical data and convert the data to dense vector
@@ -445,15 +290,12 @@ num_cols = ['selling_price', 'avg_discount',  'sales_lag_7', 'shift_1'
 labelCol = 'sales'
 
 
-# In[191]:
-
 
 data = get_dummy(df,catcols,num_cols,labelCol)
 
 
 # ## Process CSV
 
-# In[ ]:
 
 
 # https://dzone.com/articles/distributed-deep-learning-with-keras-on-apache-spa
@@ -493,8 +335,6 @@ def process_csv(fully_qualified_path, columns_renamed=tuple(),
 
 # # Deep Learning
 
-# In[ ]:
-
 
 # automatically installs latest version of Keras as dependency
 
@@ -508,8 +348,6 @@ pip uninstall tensorflow
 
 pip install tensorflow-gpu
 
-
-# In[170]:
 
 
 from keras import layers, models, optimizers, regularizers, utils
@@ -527,9 +365,6 @@ import numpy as np
 import matplotlib 
 
 from io import StringIO
-
-
-# In[174]:
 
 
 class DistKeras(ml.Estimator):
@@ -655,13 +490,7 @@ class DistKerasModel(ml.Model):
 cast_to_double = functions.udf(lambda row: float(row[0]), types.DoubleType())
 
 
-# In[175]:
-
-
 param_grid = tuning.ParamGridBuilder().baseOn(['regularizer', regularizers.l1_l2]) .addGrid('activations', [['tanh', 'relu']]) .addGrid('initializers', [['glorot_normal','glorot_uniform']]) .addGrid('layer_dims', [[input_dim, 2000, 300, 1]]) .addGrid('metrics', [['mae']]) .baseOn(['learning_rate', 1e-2]) .baseOn(['reg_strength', 1e-2]) .baseOn(['reg_decay', 0.25]) .baseOn(['lr_decay', 0.90]) .addGrid('dropout_rate', [0.20, 0.35, 0.50, 0.65, 0.80]) .addGrid('loss', ['mse', 'msle']).build()
-
-
-# In[176]:
 
 
 estimator = DistKeras(trainers.ADAG,
@@ -675,9 +504,6 @@ estimator = DistKeras(trainers.ADAG,
                        'num_workers': 50},
 
                       **param_grid[0])
-
-
-# In[177]:
 
 
 evaluator = evaluation.RegressionEvaluator(metricName='r2')
