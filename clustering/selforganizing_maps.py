@@ -47,6 +47,7 @@ UMAT = u.show(sm, distance2=1, row_normalized=False, show_data=True, contooor=Tr
 sm.cluster(4)
 hits  = HitMapView(10,10,"Clustering",text_size=12)
 a = hits.show(sm)
+plt.show()
 
 def knn_elbow(df, k_range=20, plot=True):
     from sklearn.cluster import KMeans
@@ -59,6 +60,7 @@ def knn_elbow(df, k_range=20, plot=True):
         pd.DataFrame(scores, index=['score']).T.plot(figsize=(15,8))
         plt.title('Elbow KMeans')
         plt.xlabel('K')
+        plt.show()
         
     return scores
 
@@ -66,8 +68,9 @@ som_scores = knn_elbow(sm._normalizer.denormalize_by(sm.data_raw, sm.codebook.ma
 
 print('''____________________________ \n Getting optimal K-clusters 
 ____________________________''')
-
-clusters = sm.cluster(n_clusters=5)
+print('Select number of clusters:')
+nclus = int(input())
+clusters = sm.cluster(n_clusters=nclus)
 
 map_dict = {}
 for i, j in enumerate(clusters):
