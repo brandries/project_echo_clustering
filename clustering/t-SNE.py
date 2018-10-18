@@ -73,29 +73,5 @@ product_sales = pd.read_csv('aggregate_products.csv')
 product_sales['sku_key'] = product_sales['sku_key'].astype(int)
 product_sales.drop(['sku_department', 'sku_subdepartment', 'sku_category', 'sku_subcategory'], axis=1, inplace=True)
 
-cluster_dfs = {}
-for i in tsne_cluster['cluster'].unique():
-    cluster_dfs['cluster_{}'.format(i)] = tsne_cluster[tsne_cluster['cluster'] == i]
-
-for i in cluster_dfs.keys():
-    cluster_dfs[i] = cluster_dfs[i].merge(product_sales, on='sku_key')
-
-cluster_dfs['cluster_0'].head()
-
-for j in ['sales', 'selling_price', 'avg_discount']:
-    print('\n\n', j)
-    for i in cluster_dfs.keys():
-        print(i)
-        plt.figure(figsize=(15,3))
-        cluster_dfs[i][j].plot(kind='hist', bins=20, logy=True)
-        plt.title(j)
-        if j == 'sales':
-            plt.xlim(-50, 800)
-        elif j == 'selling_price':
-            plt.xlim(-100, 8000)
-        elif j == 'avg_discount':
-            plt.xlim(-1500, 2000)
-        
-        plt.show()
-
-
+out_df = tsne_cluster[['sku_key','cluster']]
+out_df.to_csv('tsne_clusters.csv', index=False)
