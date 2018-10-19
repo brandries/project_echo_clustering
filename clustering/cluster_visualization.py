@@ -115,6 +115,28 @@ class AnalyzeClusters(object):
             else:
                 f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
 
+                
+    def plot_cluster_continuous_violin(self, cluster_dfs, categories, showplot=False):
+        for j in categories:
+            f, ax = plt.subplots(figsize=(15,10))
+            for a, i in enumerate(cluster_dfs.keys()):
+                if a == 0:
+                    int_df = pd.DataFrame(df_dict[i][j])
+                    int_df.columns = [i]
+                else:
+                    temp = pd.DataFrame(df_dict[i][j])
+                    temp.columns = [i]
+                    int_df = int_df.join(temp)
+                    int_df = int_df.fillna(0)
+
+            ax.violinplot(int_df.T)
+            plt.title(j)
+
+            if showplot == True:
+                plt.show()
+            else:
+                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+
     def plot_cluster_categorical(self, cluster_dfs, categories, showplot=False):
         for j in categories:
             print('\n\n', j)
