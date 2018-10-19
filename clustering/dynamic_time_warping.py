@@ -55,14 +55,11 @@ product_matrix_fill = product_matrix_fill[:subsample]
 
 print('Produce distance matrix...')
 ds = dtw.distance_matrix_fast(product_matrix_fill)
-
-
 if run_plots == True:
     f, ax = dtw_visualisation.plot_matrix(ds)
     f.set_size_inches(12, 12)
 
 model = clustering.LinkageTree(dtw.distance_matrix_fast, {})
-
 clusters_dtw = model.fit(product_matrix_fill)
 
 if run_plots == True:
@@ -70,8 +67,6 @@ if run_plots == True:
     f.set_size_inches(17, 20)
 
 clusters = fcluster(model.linkage, 1.154)
-np.unique(clusters)
-
 if run_plots == True:
     fig = plt.figure(figsize=(20, 20))
     dendrogram(model.linkage, orientation='left', leaf_font_size=15, color_threshold=100, labels=product_ts.index[:subsample])
