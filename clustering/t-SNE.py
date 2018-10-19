@@ -27,7 +27,8 @@ print('Clusting...')
 kmeans = AgglomerativeClustering(n_clusters=8)
 clusters_fit = kmeans.fit_predict(plot_df[[0,1]])
 tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
-tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'}, inplace=True)
+tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
+                    inplace=True)
 
 print('Outputting...')
 out_df = tsne_cluster[['id', 'cluster']]

@@ -23,11 +23,14 @@ names = df.columns
 
 print('Manipulate and pivot table...')
 product_sales['sku_key'] = product_sales['sku_key'].astype(int)
-product_sales.drop(['sku_department', 'sku_subdepartment', 'sku_category', 'sku_subcategory'], axis=1, inplace=True)
-product_ts = pd.pivot_table(product_sales, values='sales', index='sku_key', columns='tran_date')
+product_sales.drop(['sku_department', 'sku_subdepartment', 'sku_category',
+                    'sku_subcategory'], axis=1, inplace=True)
+product_ts = pd.pivot_table(product_sales, values='sales',
+                            index='sku_key', columns='tran_date')
 
 product_ts['nas'] = product_ts.apply(lambda x: x.isna()).sum(axis=1)
-print('There are {} products with less than 50% entries'.format(len(product_ts[product_ts['nas'] > len(product_ts.columns)/2])))
+print('There are {} products with less than 50% entries'\
+.format(len(product_ts[product_ts['nas'] > len(product_ts.columns)/2])))
 
 product_ts = product_ts.sort_values('nas', ascending=True).drop('nas', axis=1)
 
@@ -50,7 +53,7 @@ for i, j in zip(range(len(product_matrix)), product_ts.index):
     product_dict[j] = product_matrix[i][~np.isnan(product_matrix[i])]
     product_list.append(product_matrix[i][~np.isnan(product_matrix[i])])
 
-subsample = 200
+subsample = 2000
 product_matrix_fill = product_matrix_fill[:subsample]
 
 print('Produce distance matrix...')
@@ -69,7 +72,8 @@ if run_plots == True:
 clusters = fcluster(model.linkage, 1.154)
 if run_plots == True:
     fig = plt.figure(figsize=(20, 20))
-    dendrogram(model.linkage, orientation='left', leaf_font_size=15, color_threshold=100, labels=product_ts.index[:subsample])
+    dendrogram(model.linkage, orientation='left', leaf_font_size=15,
+               color_threshold=100, labels=product_ts.index[:subsample])
     plt.show()
 
 dtw_df = product_ts.reset_index()[:subsample]
