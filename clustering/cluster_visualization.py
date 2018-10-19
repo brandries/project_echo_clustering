@@ -77,11 +77,10 @@ class AnalyzeClusters(object):
 
     def plot_cluster_continuous(self, cluster_dfs, categories, showplot=False):
         for j in categories:
-            print('\n\n', j)
-            for i in cluster_dfs.keys():
-                print(i)
-                plt.figure(figsize=(15,3))
-                cluster_dfs[i][j].plot(kind='hist', bins=20, logy=True)
+            f, ax = plt.subplots(figsize=(15,3))
+            for a, i in enumerate(cluster_dfs.keys()):
+                cluster_dfs[i][j].plot(ax=ax, kind='hist', bins=20, logy=True,
+                                       alpha=0.2, color=colors[a])
                 plt.title(j)
                 if j == 'sales':
                     plt.xlim(-50, 800)
@@ -89,16 +88,48 @@ class AnalyzeClusters(object):
                     plt.xlim(-100, 8000)
                 elif j == 'avg_discount':
                     plt.xlim(-1500, 2000)
-                if showplot == True:
-                    plt.show()
-                else:
-                    f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+            if showplot == True:
+                plt.show()
+            else:
+                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
 
-run_cats = ['sales', 'selling_price', 'avg_discount']
+    def plot_cluster_categorical(self, cluster_dfs, categories, showplot=False):
+        for j in categories:
+            print('\n\n', j)
+            for a, i in enumerate(cluster_dfs.keys()):
+                if a == 0:
+                    int_df = pd.DataFrame(df_dict[i][j].value_counts())
+                    int_df.columns = [i]
+                else:
+                    temp = pd.DataFrame(df_dict[i][j].value_counts())
+                    temp.columns = [i]
+                    int_df = int_df.join(temp)
+                    int_df = int_df.fillna(0)
+
+            f, ax = plt.subplots(figsize=(12,10))
+            int_df.T.plot(ax=ax, kind='bar', stacked=True)
+            plt.title(j)
+            plt.legend(bbox_to_anchor=(1.35, 1.1),
+                       bbox_transform=ax.transAxes, ncol=6)
+            if showplot == True:
+                plt.show()
+            else:
+                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+
+        self.int_df = int_df
+
+colors = ['darkblue', 'tomato', 'orchid', 'darkorange',
+          'lime', 'gold', 'dodgerblue']
+run_cont = ['sales', 'selling_price', 'avg_discount']
+run_cats = ['sku_department', 'sku_subdepartment',
+            'sku_category', 'sku_subcategory']
+
 product_sales = pd.read_csv('aggregate_products.csv')
-clusters = pd.read_csv('tsne_clusters.csv')
+clusters = pd.read_csv('som_clusters.csv')
+clusters.columns = ['sku_key', 'cluster']
 
 analyze = AnalyzeClusters()
 df_dict = analyze.make_dataset(product_sales, clusters)
 
-analyze.plot_cluster_continuous(df_dict, run_cats)
+analyze.plot_cluster_continuous(df_dict, run_cont, True)
+analyze.plot_cluster_categorical(df_dict, run_cats, True)
