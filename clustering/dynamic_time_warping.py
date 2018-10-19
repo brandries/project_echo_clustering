@@ -82,4 +82,5 @@ dtw_df['cluster'] = clusters
 
 output_df = dtw_df[['sku_key', 'cluster']]
 
+print('Outputting...')
 output_df.to_csv('dtw_clusters.csv', index=False)
