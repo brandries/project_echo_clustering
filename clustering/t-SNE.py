@@ -27,27 +27,6 @@ print('Clusting...')
 kmeans = AgglomerativeClustering(n_clusters=8)
 clusters_fit = kmeans.fit_predict(plot_df[[0,1]])
 tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
-<<<<<<< HEAD
-tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'}, inplace=True)
-tsne_cluster.head()
-
-f, ax = plt.subplots(figsize=(15,12))
-
-colors=['darkblue', 'darkorange', 'purple', 'darkgreen', 'gold', 'darkred', 'black', 'lime']
-
-for i in tsne_cluster['cluster'].unique():
-    ax.scatter(tsne_cluster[tsne_cluster['cluster'] == i]['tsne1'], tsne_cluster[tsne_cluster['cluster'] == i]['tsne2'],
-    color=colors[i], label=i)           
-    
-ax.legend()
-ax.set_title('k-Means clusters on t-SNE')
-plt.show()
-
-
-product_sales = pd.read_csv('aggregate_products.csv')
-
-product_sales['sku_key'] = product_sales['sku_key'].astype(int)
-product_sales.drop(['sku_department', 'sku_subdepartment', 'sku_category', 'sku_subcategory'], axis=1, inplace=True)
 
 tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
                     inplace=True)
