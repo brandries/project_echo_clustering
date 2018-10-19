@@ -77,7 +77,7 @@ class AnalyzeClusters(object):
 
     def plot_cluster_continuous(self, cluster_dfs, categories, showplot=False):
         for j in categories:
-            f, ax = plt.subplots(figsize=(15,3))
+            f, ax = plt.subplots(figsize=(15,10))
             for a, i in enumerate(cluster_dfs.keys()):
                 cluster_dfs[i][j].plot(ax=ax, kind='hist', bins=20, logy=True,
                                        alpha=0.2, color=colors[a])
@@ -88,6 +88,50 @@ class AnalyzeClusters(object):
                     plt.xlim(-100, 8000)
                 elif j == 'avg_discount':
                     plt.xlim(-1500, 2000)
+            if showplot == True:
+                plt.show()
+            else:
+                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+
+    def plot_cluster_continuous_box(self, cluster_dfs, categories, showplot=False):
+        for j in categories:
+            f, ax = plt.subplots(figsize=(15,10))
+            for a, i in enumerate(cluster_dfs.keys()):
+                if a == 0:
+                    int_df = pd.DataFrame(df_dict[i][j])
+                    int_df.columns = [i]
+                else:
+                    temp = pd.DataFrame(df_dict[i][j])
+                    temp.columns = [i]
+                    int_df = int_df.join(temp)
+                    int_df = int_df.fillna(0)
+
+
+            int_df.plot(ax=ax, kind='box', color='red', whis=[2.5, 97.5])
+            plt.title(j)
+
+            if showplot == True:
+                plt.show()
+            else:
+                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+
+                
+    def plot_cluster_continuous_violin(self, cluster_dfs, categories, showplot=False):
+        for j in categories:
+            f, ax = plt.subplots(figsize=(15,10))
+            for a, i in enumerate(cluster_dfs.keys()):
+                if a == 0:
+                    int_df = pd.DataFrame(df_dict[i][j])
+                    int_df.columns = [i]
+                else:
+                    temp = pd.DataFrame(df_dict[i][j])
+                    temp.columns = [i]
+                    int_df = int_df.join(temp)
+                    int_df = int_df.fillna(0)
+
+            ax.violinplot(int_df.T)
+            plt.title(j)
+
             if showplot == True:
                 plt.show()
             else:
@@ -109,8 +153,7 @@ class AnalyzeClusters(object):
             f, ax = plt.subplots(figsize=(12,10))
             int_df.T.plot(ax=ax, kind='bar', stacked=True)
             plt.title(j)
-            plt.legend(bbox_to_anchor=(1.35, 1.1),
-                       bbox_transform=ax.transAxes, ncol=6)
+            plt.legend(bbox_to_anchor=(1.35, 1.1), bbox_transform=ax.transAxes, ncol=6)
             if showplot == True:
                 plt.show()
             else:
@@ -118,11 +161,10 @@ class AnalyzeClusters(object):
 
         self.int_df = int_df
 
-colors = ['darkblue', 'tomato', 'orchid', 'darkorange',
-          'lime', 'gold', 'dodgerblue']
+colors = ['darkblue', 'tomato', 'orchid', 'darkorange', 'lime', 'gold', 'dodgerblue', 'pink',
+          'grey', 'darkgreen', 'y', 'slateblue', 'r', 'brown']
 run_cont = ['sales', 'selling_price', 'avg_discount']
-run_cats = ['sku_department', 'sku_subdepartment',
-            'sku_category', 'sku_subcategory']
+run_cats = ['sku_department', 'sku_subdepartment', 'sku_category', 'sku_subcategory']
 
 product_sales = pd.read_csv('aggregate_products.csv')
 clusters = pd.read_csv('som_clusters.csv')
@@ -132,4 +174,5 @@ analyze = AnalyzeClusters()
 df_dict = analyze.make_dataset(product_sales, clusters)
 
 analyze.plot_cluster_continuous(df_dict, run_cont, True)
+analyze.plot_cluster_continuous_box(df_dict, run_cont, True)
 analyze.plot_cluster_categorical(df_dict, run_cats, True)

@@ -23,19 +23,22 @@ X = scale.fit_transform(df)
 names = df.columns
 
 print('Building SOM...')
-sm = SOMFactory().build(X, normalization = 'var', mapsize=(15,15), initialization='pca')
+sm = SOMFactory().build(X, normalization = 'var',
+                        mapsize=(15,15), initialization='pca')
 sm.train(n_job=1, verbose='info', train_rough_len=20, train_finetune_len=20)
 
 topographic_error = sm.calculate_topographic_error()
 quantization_error = np.mean(sm._bmu[1])
-print ("Topographic error = %s; Quantization error = %s" % (topographic_error, quantization_error))
+print ("Topographic error = {}; Quantization error = {}"\
+.format(topographic_error,quantization_error))
 
 def plot_figures(som):
     #BMU map
     vhts  = BmuHitsView(12,12,"Hits Map",text_size=12)
 
     #U matrix
-    u = sompy.umatrix.UMatrixView(50, 50, 'umatrix', show_axis=True, text_size=8, show_text=True)
+    u = sompy.umatrix.UMatrixView(50, 50, 'umatrix', show_axis=True,
+                                  text_size=8, show_text=True)
     UMAT  = u.build_u_matrix(sm, distance=1, row_normalized=False)
 
     #Cluster map
@@ -47,8 +50,10 @@ def plot_figures(som):
 
     #Show plots
     view2D.show(sm, col_sz=4, which_dim="all", denormalize=True)
-    vhts.show(sm, anotate=True, onlyzeros=False, labelsize=12, cmap="Greys", logaritmic=False)
-    UMAT = u.show(sm, distance2=1, row_normalized=False, show_data=True, contooor=True, blob=False)
+    vhts.show(sm, anotate=True, onlyzeros=False, labelsize=12,
+              cmap="Greys", logaritmic=False)
+    UMAT = u.show(sm, distance2=1, row_normalized=False, show_data=True,
+                  contooor=True, blob=False)
     a = hits.show(sm)
     plt.show()
 
@@ -73,7 +78,8 @@ def knn_elbow(df, k_range=20, plot=False):
     return scores
 
 print('Getting optimal K-clusters...')
-som_scores = knn_elbow(sm._normalizer.denormalize_by(sm.data_raw, sm.codebook.matrix), 40)
+som_scores = knn_elbow(sm._normalizer.denormalize_by(sm.data_raw,
+                                                     sm.codebook.matrix), 40)
 
 print('Select number of clusters:')
 nclus = int(input())
