@@ -1,12 +1,14 @@
 # Clustering of timeseries data
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import MinMaxScaler
 
-
+print('Reading in the data...')
 agg = pd.read_csv('sku_labels.csv')
 df = pd.read_csv('extracted_features.csv')
 df.dropna(axis=1, inplace=True)
@@ -17,6 +19,7 @@ df.set_index('id', inplace=True)
 X = scale.fit_transform(df)
 names = df.columns
 
+print('Running Dimentionality Reduction...')
 dimred = TSNE(2)
 tsnes = dimred.fit_transform(X)
 
@@ -45,7 +48,7 @@ def plot_by_factor(df, factor, colors, showplot=False):
                    df[df[factor] == i][1],
                    color=colors[i], label=i)
     ax.legend()
-    ax.set_title('t-SNE colored by {}', factor)
+    ax.set_title('t-SNE colored by {}'.format(factor))
 
     if showplot == True:
         plt.show()
@@ -115,7 +118,7 @@ class AnalyzeClusters(object):
             else:
                 f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
 
-                
+
     def plot_cluster_continuous_violin(self, cluster_dfs, categories, showplot=False):
         for j in categories:
             f, ax = plt.subplots(figsize=(15,10))
@@ -173,6 +176,6 @@ clusters.columns = ['sku_key', 'cluster']
 analyze = AnalyzeClusters()
 df_dict = analyze.make_dataset(product_sales, clusters)
 
-analyze.plot_cluster_continuous(df_dict, run_cont, True)
-analyze.plot_cluster_continuous_box(df_dict, run_cont, True)
-analyze.plot_cluster_categorical(df_dict, run_cats, True)
+analyze.plot_cluster_continuous(df_dict, run_cont)
+analyze.plot_cluster_continuous_box(df_dict, run_cont)
+analyze.plot_cluster_categorical(df_dict, run_cats)
