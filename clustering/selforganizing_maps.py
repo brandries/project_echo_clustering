@@ -42,7 +42,7 @@ def plot_figures(som):
     UMAT  = u.build_u_matrix(sm, distance=1, row_normalized=False)
 
     #Cluster map
-    sm.cluster(4)
+    sm.cluster(6)
     hits  = HitMapView(10,10,"Clustering",text_size=12)
 
     #Show factor influence
