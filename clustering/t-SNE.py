@@ -24,9 +24,10 @@ plot_df = dimred.fit_transform(X)
 plot_df = pd.DataFrame(plot_df).join(df.reset_index())
 
 print('Clusting...')
-kmeans = AgglomerativeClustering(n_clusters=8)
+kmeans = AgglomerativeClustering(n_clusters=6)
 clusters_fit = kmeans.fit_predict(plot_df[[0,1]])
 tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
+
 tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
                     inplace=True)
 
