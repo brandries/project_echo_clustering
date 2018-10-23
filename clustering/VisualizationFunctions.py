@@ -7,15 +7,17 @@ def plot_by_factor(df, factor, colors, showplot=False):
     import matplotlib.pyplot as plt
 
     listof = {}     # this gets numbers to get the colors right
+    listnames = []
     for i, j in enumerate(df[factor].unique()):
         listof[j] = i
+        listnames.append(j)
     df[factor] = df[factor].map(listof)
 
-    f, ax = plt.subplots(figsize=(12,8))
-    for i in df[factor].unique():
+    f, ax = plt.subplots(figsize=(15,10))
+    for a, i in enumerate(df[factor].unique()):
         ax.scatter(df[df[factor] == i][0],
                    df[df[factor] == i][1],
-                   color=colors[i], label=i)
+                   color=colors[i], label=listnames[a])
     ax.legend()
     ax.set_title('t-SNE colored by {}'.format(factor))
 
@@ -45,7 +47,7 @@ class AnalyzeClusters(object):
     def plot_cluster_continuous(self, cluster_dfs, categories, colors, showplot=False):
         import matplotlib.pyplot as plt
         for j in categories:
-            f, ax = plt.subplots(figsize=(12,8))
+            f, ax = plt.subplots(figsize=(15,10))
             for a, i in enumerate(cluster_dfs.keys()):
                 cluster_dfs[i][j].plot(ax=ax, kind='hist', bins=20, logy=True,
                                        alpha=0.2, color=colors[a])
@@ -65,7 +67,7 @@ class AnalyzeClusters(object):
         import matplotlib.pyplot as plt
         import pandas as pd
         for j in categories:
-            f, ax = plt.subplots(figsize=(12,8))
+            f, ax = plt.subplots(figsize=(15,10))
             for a, i in enumerate(cluster_dfs.keys()):
                 if a == 0:
                     int_df = pd.DataFrame(cluster_dfs[i][j])
@@ -90,7 +92,7 @@ class AnalyzeClusters(object):
         import matplotlib.pyplot as plt
         import pandas as pd
         for j in categories:
-            f, ax = plt.subplots(figsize=(12,8))
+            f, ax = plt.subplots(figsize=(15,10))
             for a, i in enumerate(cluster_dfs.keys()):
                 if a == 0:
                     int_df = pd.DataFrame(cluster_dfs[i][j])
@@ -124,7 +126,7 @@ class AnalyzeClusters(object):
                     int_df = int_df.join(temp)
                     int_df = int_df.fillna(0)
 
-            f, ax = plt.subplots(figsize=(12,8))
+            f, ax = plt.subplots(figsize=(15,10))
             int_df.T.plot(ax=ax, kind='bar', stacked=True)
             plt.title(j)
             plt.legend(bbox_to_anchor=(1.35, 1.1), bbox_transform=ax.transAxes, ncol=6)
