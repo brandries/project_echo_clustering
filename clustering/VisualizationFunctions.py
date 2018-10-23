@@ -112,6 +112,7 @@ class AnalyzeClusters(object):
     def test_continuous_feat(self, cluster_dfs, categories):
         import statsmodels.api as sm
         from statsmodels.formula.api import ols
+        from statsmodels.stats.multicomp import pairwise_tukeyhsd
         import pandas as pd
         for j in categories:
             for a, i in enumerate(cluster_dfs.keys()):
@@ -127,8 +128,8 @@ class AnalyzeClusters(object):
             int_df_unpiv.columns = ['cluster', 'value']
             mod = ols('value ~ cluster', data=int_df_unpiv).fit()
             aov_table = sm.stats.anova_lm(mod, typ=2)
-            print(j)
-            print(aov_table)
+            print('\n \n', j)
+            print(aov_table, '\n')
             print(pairwise_tukeyhsd(int_df_unpiv['value'],
                                     int_df_unpiv['cluster']))
 
