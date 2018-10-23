@@ -76,8 +76,6 @@ class AnalyzeClusters(object):
                     temp = pd.DataFrame(cluster_dfs[i][j])
                     temp.columns = [i]
                     int_df = int_df.join(temp)
-                    int_df = int_df.fillna(0)
-
 
             int_df.plot(ax=ax, kind='box', color='red', whis=[2.5, 97.5])
             plt.title(j)
@@ -110,6 +108,31 @@ class AnalyzeClusters(object):
                 plt.show()
             else:
                 f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+
+    def test_continuous_feat(self, cluster_dfs, categories):
+        import statsmodels.api as sm
+        from statsmodels.formula.api import ols
+        import pandas as pd
+        for j in categories:
+            for a, i in enumerate(cluster_dfs.keys()):
+                if a == 0:
+                    int_df = pd.DataFrame(cluster_dfs[i][j])
+                    int_df.columns = [i]
+                else:
+                    temp = pd.DataFrame(cluster_dfs[i][j])
+                    temp.columns = [i]
+                    int_df = int_df.join(temp)
+
+            int_df_unpiv = int_df.melt().dropna()
+            int_df_unpiv.columns = ['cluster', 'value']
+            mod = ols('value ~ cluster', data=int_df_unpiv).fit()
+            aov_table = sm.stats.anova_lm(mod, typ=2)
+            print(j)
+            print(aov_table)
+            print(pairwise_tukeyhsd(int_df_unpiv['value'],
+                                    int_df_unpiv['cluster']))
+
+
 
     def plot_cluster_categorical(self, cluster_dfs, categories, showplot=False):
         import matplotlib.pyplot as plt
