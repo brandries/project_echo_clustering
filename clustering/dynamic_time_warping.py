@@ -73,17 +73,18 @@ if run_plots == True:
     f, ax = model.plot()
     f.set_size_inches(17, 20)
 
-threshold = 1.1547
-clusters = fcluster(model.linkage, threshold)
+threshold = 6
+clusters = fcluster(model.linkage, threshold,
+                    criterion='inconsistent', depth=10)
+
 if run_plots == True:
     fig = plt.figure(figsize=(20, 20))
     dendrogram(model.linkage, orientation='left', leaf_font_size=15,
                color_threshold=100, labels=product_ts.index[:subsample])
     plt.show()
-dtw_df = product_ts.reset_index()[:subsample]
+
+dtw_df = product_ts.reset_index()
 dtw_df['cluster'] = clusters
-
 output_df = dtw_df[['sku_key', 'cluster']]
-
 print('Outputting...')
-output_df.to_csv('dtw_clusters_{}.csv'.format(threshold), index=False)
+output_df.to_csv('dtw_clusters.csv', index=False)
