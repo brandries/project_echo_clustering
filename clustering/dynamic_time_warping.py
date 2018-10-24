@@ -5,6 +5,7 @@ from scipy.cluster.hierarchy import dendrogram, fcluster
 from dtaidistance import dtw, dtw_visualisation, clustering
 from dtaidistance import dtw_visualisation as dtwvis
 from sklearn.preprocessing import MinMaxScaler
+import pickle
 
 run_plots = False
 
@@ -53,33 +54,36 @@ for i, j in zip(range(len(product_matrix)), product_ts.index):
     product_dict[j] = product_matrix[i][~np.isnan(product_matrix[i])]
     product_list.append(product_matrix[i][~np.isnan(product_matrix[i])])
 
-subsample = 2000
+subsample = 3193
 product_matrix_fill = product_matrix_fill[:subsample]
 
-print('Produce distance matrix...')
-ds = dtw.distance_matrix_fast(product_matrix_fill)
-if run_plots == True:
-    f, ax = dtw_visualisation.plot_matrix(ds)
-    f.set_size_inches(12, 12)
+#print('Produce distance matrix...')
+#ds = dtw.distance_matrix_fast(product_matrix_fill)
+#if run_plots == True:
+#    f, ax = dtw_visualisation.plot_matrix(ds)
+#    f.set_size_inches(12, 12)
 
+print('Product linkage Tree')
 model = clustering.LinkageTree(dtw.distance_matrix_fast, {})
 clusters_dtw = model.fit(product_matrix_fill)
+
+pickle.dump(model, open('model.pkl', 'wb'))
 
 if run_plots == True:
     f, ax = model.plot()
     f.set_size_inches(17, 20)
 
-clusters = fcluster(model.linkage, 1.154)
+threshold = 1.1547
+clusters = fcluster(model.linkage, threshold)
 if run_plots == True:
     fig = plt.figure(figsize=(20, 20))
     dendrogram(model.linkage, orientation='left', leaf_font_size=15,
                color_threshold=100, labels=product_ts.index[:subsample])
     plt.show()
-
 dtw_df = product_ts.reset_index()[:subsample]
 dtw_df['cluster'] = clusters
 
 output_df = dtw_df[['sku_key', 'cluster']]
 
 print('Outputting...')
-output_df.to_csv('dtw_clusters.csv', index=False)
+output_df.to_csv('dtw_clusters_{}.csv'.format(threshold), index=False)
