@@ -61,7 +61,7 @@ class AnalyzeClusters(object):
             if showplot == True:
                 plt.show()
             else:
-                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+                f.savefig('images/{}_continuous.png'.format(j))
 
     def plot_cluster_continuous_box(self, cluster_dfs, categories, showplot=False):
         import matplotlib.pyplot as plt
@@ -83,7 +83,7 @@ class AnalyzeClusters(object):
             if showplot == True:
                 plt.show()
             else:
-                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+                f.savefig('images/{}_continuous-box.png'.format(j))
 
 
     def plot_cluster_continuous_violin(self, cluster_dfs, categories, showplot=False):
@@ -107,7 +107,7 @@ class AnalyzeClusters(object):
             if showplot == True:
                 plt.show()
             else:
-                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+                f.savefig('images/{}_continuous-violin.png'.format(j))
 
     def test_continuous_feat(self, cluster_dfs, categories):
         import statsmodels.api as sm
@@ -132,7 +132,7 @@ class AnalyzeClusters(object):
             print(aov_table, '\n')
             print(pairwise_tukeyhsd(int_df_unpiv['value'],
                                     int_df_unpiv['cluster']))
-
+        self.stats_table = int_df
 
 
     def plot_cluster_categorical(self, cluster_dfs, categories, showplot=False):
@@ -157,6 +157,6 @@ class AnalyzeClusters(object):
             if showplot == True:
                 plt.show()
             else:
-                f.savefig('images/{}.png'.format('{}-{}'.format(i, j)))
+                f.savefig('images/{}_categorical.png'.format(j))
 
         self.int_df = int_df
