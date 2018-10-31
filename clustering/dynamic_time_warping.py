@@ -17,7 +17,7 @@ class Preprocessing(object):
         print('Manipulate and pivot table...')
         df['sku_key'] = df['sku_key'].astype(int)
         df.drop(['sku_department', 'sku_subdepartment',
-                 'sku_category', 'sku_subcategory'],
+                 'sku_category', 'sku_subcategory', 'sku_label'],
                 axis=1, inplace=True)
         product_ts = pd.pivot_table(df, values='sales',
                                     index='sku_key', columns='tran_date')
