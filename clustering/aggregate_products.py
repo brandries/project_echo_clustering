@@ -1,4 +1,4 @@
-# Clustering of timeseries data
+# Preprocessing time series data
 import pandas as pd
 import numpy as np
 from tsfresh import extract_features
