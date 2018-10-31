@@ -2,9 +2,11 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-
+import umap
+from sklearn.manifold import TSNE
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import RobustScaler
+import hdbscan
 
 class DataPreprocess(object):
     def __init__(self):
@@ -29,12 +31,10 @@ class DimensionalityReduction(object):
     def __init__(self):
         pass
 
-    def run_tsne(self, features):
-        from sklearn.manifold import TSNE
+    def run_dimred(self, features, dimred):
         print('Running Dimentionality Reduction...')
-        dimred = TSNE()
-        tsne = dimred.fit_transform(features)
-        return tsne
+        projection = dimred.fit_transform(features)
+        return projection
 
 
 class Clustering(object):
@@ -42,10 +42,9 @@ class Clustering(object):
         pass
 
     def cluster(self, dimred, clustering_algo):
-        print('Clusting...')
+        print('Clustering...')
         clusters_fit = clustering_algo.fit_predict(dimred[[0,1]])
-        tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
-        return tsne_cluster
+        return clusters_fit
 
 
 def main():
@@ -56,16 +55,18 @@ def main():
     names = df.columns
 
     dr = DimensionalityReduction()
-    tsne = dr.run_tsne(scaled)
+    tsne = TSNE()
+    tsne = dr.run_dimred(scaled, tsne)
     plot_df = pd.DataFrame(tsne).join(df.reset_index())
-    cl = Clusting()
-    clus_algo = AgglomerativeClustering(n_clusters=6)
-    plot_df = cl.cluster(plot_df, clus_algo)
-    plot_df.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
-                   inplace=True)
+    cl = Clustering()
+    clus_algo = hdbscan.HDBSCAN()
+    clusters_fit = cl.cluster(plot_df, clus_algo)
+    tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
+    tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
+                        inplace=True)
 
     print('Outputting...')
-    out_df = plot_df[['id', 'cluster']]
+    out_df = tsne_cluster[['id', 'cluster']]
     out_df.to_csv('tsne_clusters.csv', index=False)
 
 if __name__ == '__main__':
