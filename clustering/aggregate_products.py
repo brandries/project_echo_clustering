@@ -1,7 +1,6 @@
 # Clustering of timeseries data
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from tsfresh import extract_features
 
 df = pd.read_csv('complete_df_7.csv')
@@ -35,7 +34,7 @@ aggregate_df.to_csv('aggregate_products.csv', index=False)
 # Extract features from TS using tsfresh and write
 aggregate_df['tran_date'] = pd.to_datetime(df['tran_date'])
 extracted_features = extract_features(aggregate_df[['sku_key',
-                                                    'tran_date'
+                                                    'tran_date',
                                                     'sales']],
                                       column_id="sku_key",
                                       column_sort="tran_date")
