@@ -59,7 +59,7 @@ def main():
     tsne = dr.run_dimred(scaled, tsne)
     plot_df = pd.DataFrame(tsne).join(df.reset_index())
     cl = Clustering()
-    clus_algo = hdbscan.HDBSCAN()
+    clus_algo = hdbscan.HDBSCAN(min_cluster_size=10)
     clusters_fit = cl.cluster(plot_df, clus_algo)
     tsne_cluster = plot_df.join(pd.DataFrame(clusters_fit), rsuffix='clus')
     tsne_cluster.rename(columns={'0':'tsne1', 1:'tsne2', '0clus':'cluster'},
