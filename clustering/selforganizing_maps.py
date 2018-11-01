@@ -67,10 +67,10 @@ class BuildSOM(object):
 
 
 def make_class_dict(clusters):
-        map_dict = {}
-        for i, j in enumerate(clusters):
-            map_dict[i] = j
-        return map_dict
+    map_dict = {}
+    for i, j in enumerate(clusters):
+        map_dict[i] = j
+    return map_dict
 
 def assign_from_som(clusters, model):
     map_dict = make_class_dict(clusters)

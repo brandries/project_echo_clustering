@@ -97,6 +97,7 @@ def main():
     pp = Preprocessing()
     product_ts = pp.pivot_table(product_sales)
     product_ts = pp.sort_nas(product_ts)
+    product_ts.to_csv('pivot_products.csv')
     if run_plots == True:
         pp.plot_nas(product_ts)
     pp.make_diff_length_list(product_ts)
