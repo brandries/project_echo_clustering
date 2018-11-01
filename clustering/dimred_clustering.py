@@ -55,7 +55,7 @@ def main():
     names = df.columns
 
     dr = DimensionalityReduction()
-    tsne = TSNE()
+    tsne = umap.UMAP(n_neighbors = 30, min_dist=0.0, n_components=10)
     tsne = dr.run_dimred(scaled, tsne)
     plot_df = pd.DataFrame(tsne).join(df.reset_index())
     cl = Clustering()
