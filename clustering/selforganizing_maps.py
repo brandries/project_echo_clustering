@@ -23,7 +23,6 @@ def knn_elbow(df, k_range=20, plot=False):
         plt.title('Elbow KMeans')
         plt.xlabel('K')
         plt.show()
-
     return scores
 
 def plot_figures(som):
@@ -47,6 +46,20 @@ def plot_figures(som):
     a = hits.show(sm)
     plt.show()
 
+def make_class_dict(clusters):
+    map_dict = {}
+    for i, j in enumerate(clusters):
+        map_dict[i] = j
+    return map_dict
+
+def assign_from_som(clusters, model):
+    map_dict = make_class_dict(clusters)
+    assignment = pd.DataFrame(model._bmu).T
+    assignment[0] = assignment[0].astype(int)
+    cluster_assignments = assignment[0].map(map_dict)
+    df_assigned = pd.DataFrame(cluster_assignments)
+    return df_assigned
+
 
 class BuildSOM(object):
     def __init__(self):
@@ -64,23 +77,6 @@ class BuildSOM(object):
         print ("Topographic error = {}; Quantization error = {}"\
         .format(topographic_error,quantization_error))
         return sm
-
-
-def make_class_dict(clusters):
-    map_dict = {}
-    for i, j in enumerate(clusters):
-        map_dict[i] = j
-    return map_dict
-
-def assign_from_som(clusters, model):
-    map_dict = make_class_dict(clusters)
-    assignment = pd.DataFrame(model._bmu).T
-    assignment[0] = assignment[0].astype(int)
-    cluster_assignments = assignment[0].map(map_dict)
-    df_assigned = pd.DataFrame(cluster_assignments)
-    return df_assigned
-
-
 
 
 def main():
