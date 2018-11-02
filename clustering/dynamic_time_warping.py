@@ -4,87 +4,111 @@ import matplotlib.pyplot as plt
 from scipy.cluster.hierarchy import dendrogram, fcluster
 from dtaidistance import dtw, dtw_visualisation, clustering
 from dtaidistance import dtw_visualisation as dtwvis
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import RobustScaler, StandardScaler
 import pickle
-
+from dimred_clustering import DataPreprocess
 run_plots = False
 
-print('Reading in the data...')
-agg = pd.read_csv('sku_labels.csv')
-df = pd.read_csv('extracted_features.csv')
-product_sales = pd.read_csv('aggregate_products.csv')
-df.dropna(axis=1, inplace=True)
+class Preprocessing(object):
+    def __init__(self):
+        pass
 
-scale = MinMaxScaler()
-skus = df['id']
-df.set_index('id', inplace=True)
-X = scale.fit_transform(df)
+    def pivot_table(self, df):
+        print('Manipulate and pivot table...')
+        df['sku_key'] = df['sku_key'].astype(int)
+        df.drop(['sku_department', 'sku_subdepartment',
+                 'sku_category', 'sku_subcategory', 'sku_label'],
+                axis=1, inplace=True)
+        product_ts = pd.pivot_table(df, values='sales',
+                                    index='sku_key', columns='tran_date')
+        return product_ts
 
-names = df.columns
+    def sort_nas(self, df):
+        df['nas'] = df.apply(lambda x: x.isna()).sum(axis=1)
+        print('There are {} products with less than 50% entries'\
+        .format(len(df[df['nas'] > len(df.columns)/2])))
+        self.df_ordered = df.sort_values('nas', ascending=True).drop('nas', axis=1)
+        return self.df_ordered
 
-print('Manipulate and pivot table...')
-product_sales['sku_key'] = product_sales['sku_key'].astype(int)
-product_sales.drop(['sku_department', 'sku_subdepartment', 'sku_category',
-                    'sku_subcategory'], axis=1, inplace=True)
-product_ts = pd.pivot_table(product_sales, values='sales',
-                            index='sku_key', columns='tran_date')
+    def plot_nas(self, df):
+        plt.figure(figsize=(5,10))
+        plt.imshow(df, cmap='hot', interpolation='nearest')
+        plt.show()
 
-product_ts['nas'] = product_ts.apply(lambda x: x.isna()).sum(axis=1)
-print('There are {} products with less than 50% entries'\
-.format(len(product_ts[product_ts['nas'] > len(product_ts.columns)/2])))
+    def make_diff_length_list(self, df):
+        self.product_ts_fill = df.fillna(0)
+        self.product_matrix_fill = self.product_ts_fill.values
+        self.product_matrix = df.values
+        product_dict = {}
+        product_list = []
+        for i, j in zip(range(len(self.product_matrix)), df.index):
+            product_dict[j] = self.product_matrix[i][~np.isnan(self.product_matrix[i])]
+            product_list.append(self.product_matrix[i][~np.isnan(self.product_matrix[i])])
 
-product_ts = product_ts.sort_values('nas', ascending=True).drop('nas', axis=1)
+        self.product_dict = product_dict
+        self.product_list = product_list
 
-def plot_nas(df):
-    plt.figure(figsize=(5,10))
-    plt.imshow(df, cmap='hot', interpolation='nearest')
-    plt.show()
 
-if run_plots == True:
-    plot_nas(product_ts)
+class DynamicTimeWarping(object):
+    def __init__(self):
+        pass
 
-product_ts_fill = product_ts.fillna(0)
-product_matrix_fill = product_ts_fill.values
-product_matrix = product_ts.values
+    def distance_matrix(self, df):
+        print('Producing distance matrix...')
+        ds = dtw.distance_matrix_fast(df)
+        if run_plots == True:
+            f, ax = dtw_visualisation.plot_matrix(ds)
+            f.set_size_inches(12, 12)
+        return ds
 
-product_dict = {}
-product_list = []
+    def linkage_tree(self, df):
+        print('Producing linkage Tree')
+        self.model = clustering.LinkageTree(dtw.distance_matrix_fast, {})
+        clusters_dtw = self.model.fit(df)
+        return clusters_dtw
+        pickle.dump(self.model, open('model.pkl', 'wb'))
+        if run_plots == True:
+            f, ax = self.model.plot()
+            f.set_size_inches(17, 20)
 
-for i, j in zip(range(len(product_matrix)), product_ts.index):
-    product_dict[j] = product_matrix[i][~np.isnan(product_matrix[i])]
-    product_list.append(product_matrix[i][~np.isnan(product_matrix[i])])
+    def cluster(self, model, cluster_nr):
+        threshold = cluster_nr
+        clusters = fcluster(model.linkage, threshold,
+                            criterion='inconsistent', depth=10)
+        return clusters
 
-subsample = 3193
-product_matrix_fill = product_matrix_fill[:subsample]
+        if run_plots == True:
+            fig = plt.figure(figsize=(20, 20))
+            dendrogram(model.linkage, orientation='left', leaf_font_size=15,
+                       color_threshold=100, labels=product_ts.index[:subsample])
+            plt.show()
 
-#print('Produce distance matrix...')
-#ds = dtw.distance_matrix_fast(product_matrix_fill)
-#if run_plots == True:
-#    f, ax = dtw_visualisation.plot_matrix(ds)
-#    f.set_size_inches(12, 12)
 
-print('Product linkage Tree')
-model = clustering.LinkageTree(dtw.distance_matrix_fast, {})
-clusters_dtw = model.fit(product_matrix_fill)
 
-pickle.dump(model, open('model.pkl', 'wb'))
 
-if run_plots == True:
-    f, ax = model.plot()
-    f.set_size_inches(17, 20)
+def main():
+    dp = DataPreprocess()
+    labels, df = dp.read_data('sku_labels.csv', 'extracted_features.csv')
+    product_sales = pd.read_csv('aggregate_products.csv')
+    scaler = RobustScaler()
+    X = dp.scale_data(df, scaler)
+    names = df.columns
 
-threshold = 6
-clusters = fcluster(model.linkage, threshold,
-                    criterion='inconsistent', depth=10)
+    pp = Preprocessing()
+    product_ts = pp.pivot_table(product_sales)
+    product_ts = pp.sort_nas(product_ts)
+    product_ts.to_csv('pivot_products.csv')
+    if run_plots == True:
+        pp.plot_nas(product_ts)
+    pp.make_diff_length_list(product_ts)
+    dtw = DynamicTimeWarping()
+    clusters_dtw = dtw.linkage_tree(pp.product_matrix_fill)
+    clusters = dtw.cluster(dtw.model, 6)
+    dtw_df = product_ts.reset_index()
+    dtw_df['cluster'] = clusters
+    output_df = dtw_df[['sku_key', 'cluster']]
+    print('Outputting...')
+    output_df.to_csv('dtw_clusters.csv', index=False)
 
-if run_plots == True:
-    fig = plt.figure(figsize=(20, 20))
-    dendrogram(model.linkage, orientation='left', leaf_font_size=15,
-               color_threshold=100, labels=product_ts.index[:subsample])
-    plt.show()
-
-dtw_df = product_ts.reset_index()
-dtw_df['cluster'] = clusters
-output_df = dtw_df[['sku_key', 'cluster']]
-print('Outputting...')
-output_df.to_csv('dtw_clusters.csv', index=False)
+if __name__ == '__main__':
+    main()
