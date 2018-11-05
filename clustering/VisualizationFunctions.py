@@ -43,6 +43,18 @@ class AnalyzeClusters(object):
 
         return self.c_dfs
 
+    def plot_mean_timeseries(self, cluster_dfs):
+        for i, j in df_dict.items():
+            j.groupby('tran_date').median()['sales'].plot(figsize=(15,10))
+
+        pd.pivot_table(df_dict['cluster_2'], values='sales', columns='tran_date', index='sku_key').T.plot(figsize=(15,8))
+        plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
+
+    def plot_all_timeseries(self, cluster_dfs):
+        for i, j in df_dict.items():
+            pd.pivot_table(j, values='sales', columns='tran_date',
+                           index='sku_key').T.plot(figsize=(15,8))
+            plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
 
     def plot_cluster_continuous(self, cluster_dfs, categories, colors, showplot=False):
         import matplotlib.pyplot as plt
