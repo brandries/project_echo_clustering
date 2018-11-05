@@ -49,8 +49,6 @@ class AnalyzeClusters(object):
         for i, j in cluster_dfs.items():
             j.groupby('tran_date').median()['sales'].plot(figsize=(15,10))
 
-        pd.pivot_table(df_dict['cluster_2'], values='sales', columns='tran_date', index='sku_key').T.plot(figsize=(15,8))
-        plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
 
     def plot_all_timeseries(self, cluster_dfs):
         import pandas as pd
