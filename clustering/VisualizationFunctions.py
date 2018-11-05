@@ -44,8 +44,7 @@ class AnalyzeClusters(object):
         return self.c_dfs
 
 
-    def plot_cluster_continuous(self, cluster_dfs, categories, colors,
-                                showplot=False):
+    def plot_cluster_continuous(self, cluster_dfs, categories, colors, showplot=False):
         import matplotlib.pyplot as plt
         for j in categories:
             f, ax = plt.subplots(figsize=(15,10))
@@ -64,8 +63,7 @@ class AnalyzeClusters(object):
             else:
                 f.savefig('images/{}_continuous.png'.format(j))
 
-    def plot_cluster_continuous_box(self, cluster_dfs, categories,
-                                    showplot=False):
+    def plot_cluster_continuous_box(self, cluster_dfs, categories, showplot=False):
         import matplotlib.pyplot as plt
         import pandas as pd
         for j in categories:
@@ -88,8 +86,7 @@ class AnalyzeClusters(object):
                 f.savefig('images/{}_continuous-box.png'.format(j))
 
 
-    def plot_cluster_continuous_violin(self, cluster_dfs, categories,
-                                       showplot=False):
+    def plot_cluster_continuous_violin(self, cluster_dfs, categories, showplot=False):
         import matplotlib.pyplot as plt
         import pandas as pd
         for j in categories:
@@ -160,5 +157,6 @@ class AnalyzeClusters(object):
             if showplot == True:
                 plt.show()
             else:
-                f.savefig('images/{}_categorical.png'.format(j)
+                f.savefig('images/{}_categorical.png'.format(j))
+
         self.int_df = int_df
