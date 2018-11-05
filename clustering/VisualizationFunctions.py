@@ -44,14 +44,14 @@ class AnalyzeClusters(object):
         return self.c_dfs
 
     def plot_mean_timeseries(self, cluster_dfs):
-        for i, j in df_dict.items():
+        for i, j in cluster_dfs.items():
             j.groupby('tran_date').median()['sales'].plot(figsize=(15,10))
 
         pd.pivot_table(df_dict['cluster_2'], values='sales', columns='tran_date', index='sku_key').T.plot(figsize=(15,8))
         plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
 
     def plot_all_timeseries(self, cluster_dfs):
-        for i, j in df_dict.items():
+        for i, j in cluster_dfs.items():
             pd.pivot_table(j, values='sales', columns='tran_date',
                            index='sku_key').T.plot(figsize=(15,8))
             plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
