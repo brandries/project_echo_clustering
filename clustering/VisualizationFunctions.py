@@ -59,6 +59,7 @@ class AnalyzeClusters(object):
             pd.pivot_table(j, values='sales', columns='tran_date',
                            index='sku_key').T.plot(figsize=(15,8))
             plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
+            plt.show()
 
     def plot_cluster_continuous(self, cluster_dfs, categories, colors, showplot=False):
         import matplotlib.pyplot as plt
