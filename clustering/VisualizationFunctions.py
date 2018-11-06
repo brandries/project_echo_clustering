@@ -49,6 +49,7 @@ class AnalyzeClusters(object):
             df = pd.DataFrame(j[['sales', 'tran_date']].groupby('tran_date').median())
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.plot(figsize=(15,10))
+            plt.title(i)
             if split == True:
                 plt.show()
 
@@ -59,6 +60,7 @@ class AnalyzeClusters(object):
             df = pd.DataFrame(j[['sales', 'tran_date']].groupby('tran_date').mean())
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.plot(figsize=(15,10))
+            plt.title(i)
             if split == True:
                 plt.show()
 
@@ -69,8 +71,21 @@ class AnalyzeClusters(object):
             df = j[['sales', 'tran_date']].groupby('tran_date').mean().rolling(period).mean()
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.plot(figsize=(15,10))
+            plt.title(i)
             if split == True:
                 plt.show()
+
+    def plot_nan_start(self, cluster_df):
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        for i, j in cluster_df.items():
+            print('{}, there are {} skus and {} sales.'\
+            .format(i, len(j['sku_key'].unique()), sum(j['sales'])))
+            pivot_t = pd.pivot_table(j, index='sku_key',
+                                     columns='tran_date', values='sales')
+            pivot_t['nan'] = pivot_t.iloc[:,0].apply(np.isnan)
+            pivot_t['nan'].value_counts().plot(kind='bar')
+            plt.show()
 
     def plot_all_timeseries(self, cluster_dfs):
         import pandas as pd
