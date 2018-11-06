@@ -43,12 +43,35 @@ class AnalyzeClusters(object):
 
         return self.c_dfs
 
-    def plot_mean_timeseries(self, cluster_dfs):
+    def plot_median_timeseries(self, cluster_dfs, split=False):
         import pandas as pd
         import matplotlib.pyplot as plt
         for i, j in cluster_dfs.items():
-            j.groupby('tran_date').median()['sales'].plot(figsize=(15,10))
+            df = pd.j[['sales', 'tran_date']].groupby('tran_date').median()
+            df.set_index(pd.to_datetime(df.index), inplace=True)
+            df.plot(figsize=(15,10))
+            if split == True:
+                plt.show()
 
+    def plot_mean_timeseries(self, cluster_dfs, split=False):
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        for i, j in cluster_dfs.items():
+            df = j[['sales', 'tran_date']].groupby('tran_date').mean()
+            df.set_index(pd.to_datetime(df.index), inplace=True)
+            df.plot(figsize=(15,10))
+            if split == True:
+                plt.show()
+
+    def plot_rolling_mean_timeseries(self, cluster_dfs, period=7, split=False):
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        for i, j in cluster_dfs.items():
+            df = j[['sales', 'tran_date']].groupby('tran_date').mean().rolling(period).mean()
+            df.set_index(pd.to_datetime(df.index), inplace=True)
+            df.plot(figsize=(15,10))
+            if split == True:
+                plt.show()
 
     def plot_all_timeseries(self, cluster_dfs):
         import pandas as pd
