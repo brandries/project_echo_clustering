@@ -31,7 +31,6 @@ class AnalyzeClusters(object):
     def __init__(self):
         pass
 
-
     def make_dataset(self, sales_df, clus_df):
         sales_df['sku_key'] = sales_df['sku_key'].astype(int)
         self.c_dfs = {}
@@ -47,7 +46,7 @@ class AnalyzeClusters(object):
         import pandas as pd
         import matplotlib.pyplot as plt
         for i, j in cluster_dfs.items():
-            df = pd.j[['sales', 'tran_date']].groupby('tran_date').median()
+            df = pd.DataFrame(j[['sales', 'tran_date']].groupby('tran_date').median())
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.plot(figsize=(15,10))
             if split == True:
@@ -57,7 +56,7 @@ class AnalyzeClusters(object):
         import pandas as pd
         import matplotlib.pyplot as plt
         for i, j in cluster_dfs.items():
-            df = j[['sales', 'tran_date']].groupby('tran_date').mean()
+            df = pd.DataFrame(j[['sales', 'tran_date']].groupby('tran_date').mean())
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.plot(figsize=(15,10))
             if split == True:
@@ -77,8 +76,10 @@ class AnalyzeClusters(object):
         import pandas as pd
         import matplotlib.pyplot as plt
         for i, j in cluster_dfs.items():
-            pd.pivot_table(j, values='sales', columns='tran_date',
-                           index='sku_key').T.plot(figsize=(15,8))
+            df = pd.pivot_table(j, values='sales', columns='tran_date',
+                                index='sku_key').T
+            df.set_index(pd.to_datetime(df.index), inplace=True)
+            df.plot(figsize=(15,8))
             plt.legend(bbox_to_anchor=(1.35, 1.1), ncol=6)
             plt.show()
 
