@@ -50,7 +50,7 @@ class Clustering(object):
 def main():
     dp = DataPreprocess()
     labels, df = dp.read_data('sku_labels.csv', 'extracted_features.csv')
-    scaler = RobustScaler()
+    scaler = StandardScaler()
     scaled = dp.scale_data(df, scaler)
     names = df.columns
 
