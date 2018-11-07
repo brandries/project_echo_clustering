@@ -7,6 +7,7 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import RobustScaler, StandardScaler
 import hdbscan
+from dynamic_time_warping import *
 
 class DataPreprocess(object):
     def __init__(self):
@@ -49,14 +50,27 @@ class Clustering(object):
 
 def main():
     dp = DataPreprocess()
-    labels, df = dp.read_data('sku_labels.csv', 'extracted_features.csv')
+    subset = 'none'
+    df = pd.read_csv('extracted_features.csv')
+    df.set_index('id', inplace=True)
+    df.dropna(axis=1, inplace=True)
+    pp = Preprocessing()
+    feat = pd.read_csv('aggregate_products.csv')
+    pivot = pp.pivot_table(feat)
+    sorted = pp.sort_nas(pivot)
+    pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(sorted, df)
     scaler = StandardScaler()
-    scaled = dp.scale_data(df, scaler)
-    names = df.columns
-
+    if subset == 'nan':
+        use_df = nans
+    elif subset == 'no_nans':
+        use_df = no_nans
+    elif subset == 'none':
+        use_df = df
+    print('There are {} samples'.format(len(use_df)))
+    X = scaler.fit_transform(use_df)
     dr = DimensionalityReduction()
     tsne = umap.UMAP(n_neighbors = 30, min_dist=0.0, n_components=50)
-    tsne = dr.run_dimred(scaled, tsne)
+    tsne = dr.run_dimred(X, tsne)
     plot_df = pd.DataFrame(tsne).join(df.reset_index())
     cl = Clustering()
     clus_algo = hdbscan.HDBSCAN(min_cluster_size=50)
