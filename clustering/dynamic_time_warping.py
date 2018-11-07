@@ -6,7 +6,7 @@ from dtaidistance import dtw, dtw_visualisation, clustering
 from dtaidistance import dtw_visualisation as dtwvis
 from sklearn.preprocessing import RobustScaler, StandardScaler
 import pickle
-from dimred_clustering import DataPreprocess
+from dimred_clustering import *
 run_plots = False
 
 class Preprocessing(object):
@@ -99,7 +99,7 @@ def main():
     dp = DataPreprocess()
     labels, df = dp.read_data('sku_labels.csv', 'extracted_features.csv')
     product_sales = pd.read_csv('aggregate_products.csv')
-    scaler = RobustScaler()
+    scaler = StandardScaler()
     X = dp.scale_data(df, scaler)
     names = df.columns
 
