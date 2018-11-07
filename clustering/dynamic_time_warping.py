@@ -30,6 +30,15 @@ class Preprocessing(object):
         self.df_ordered = df.sort_values('nas', ascending=True).drop('nas', axis=1)
         return self.df_ordered
 
+    def split_nans(self, pivot_table, feature_df):
+        sorted_df = pivot_table.copy()
+        sorted_df['nan'] = sorted_df.iloc[:,0].apply(np.isnan)
+        pivot_no_nans = sorted_df[sorted_df['nan'] == False].drop('nan', axis=1)
+        pivot_nans = sorted_df[sorted_df['nan'] == True].drop('nan', axis=1)
+        nans = feature_df.loc[list(pivot_nans.index),:]
+        no_nans = feature_df.loc[list(pivot_no_nans.index),:]
+        return pivot_nans, nans, pivot_no_nans, no_nans
+
     def plot_nas(self, df):
         plt.figure(figsize=(5,10))
         plt.imshow(df, cmap='hot', interpolation='nearest')
