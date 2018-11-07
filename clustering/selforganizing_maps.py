@@ -81,6 +81,7 @@ class BuildSOM(object):
 
 def main():
     show_plots = False
+    subset = 'nan'
     df = pd.read_csv('extracted_features.csv')
     df.set_index('id', inplace=True)
     df.dropna(axis=1, inplace=True)
@@ -89,10 +90,15 @@ def main():
     pivot = pp.pivot_table(feat)
     sorted = pp.sort_nas(pivot)
     pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(sorted, df)
-    nans.dropna(inplace=True)
-    print(len(nans))
     scaler = StandardScaler()
-    X = scaler.fit_transform(nans)
+    if subset == 'nan':
+        use_df = nans
+    elif subset == 'no_nans':
+        use_df = no_nans
+    elif subset == 'none':
+        use_df = df
+    print('There are {} samples'.format(len(use_df)))
+    X = scaler.fit_transform(use_df)
     som = BuildSOM()
     model = som.build_som(X)
     if show_plots == True:
@@ -101,7 +107,7 @@ def main():
     nclus = 6
     clusters = model.cluster(n_clusters=nclus)
     df_assigned = assign_from_som(clusters, model)
-    df_assigned.index = nans.index
+    df_assigned.index = use_df.index
     print('Outputting...')
     df_assigned.to_csv('som_clusters.csv')
 
