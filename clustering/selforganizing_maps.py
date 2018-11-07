@@ -9,7 +9,7 @@ from sompy.visualization.bmuhits import BmuHitsView
 from sompy.visualization.hitmap import HitMapView
 from dimred_clustering import DataPreprocess
 from sklearn.preprocessing import RobustScaler, StandardScaler
-
+from dynamic_time_warping import Preprocessing
 
 def knn_elbow(df, k_range=20, plot=False):
     from sklearn.cluster import KMeans
@@ -81,12 +81,18 @@ class BuildSOM(object):
 
 def main():
     show_plots = False
-
-    dp = DataPreprocess()
-    labels, df = dp.read_data('sku_labels.csv', 'extracted_features.csv')
+    df = pd.read_csv('extracted_features.csv')
+    df.set_index('id', inplace=True)
+    pp = Preprocessing()
+    feat = pd.read_csv('aggregate_products.csv')
+    pivot = pp.pivot_table(feat)
+    sorted = pp.sort_nas(pivot)
+    pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(sorted, df)
+    print(nans.shape)
+    nans.dropna(inplace=True)
     scaler = StandardScaler()
-    X = dp.scale_data(df, scaler)
-    names = df.columns
+    print(nans.shape)
+    X = scaler.fit_transform(nans)
     som = BuildSOM()
     model = som.build_som(X)
     if show_plots == True:
@@ -95,7 +101,7 @@ def main():
     nclus = 6
     clusters = model.cluster(n_clusters=nclus)
     df_assigned = assign_from_som(clusters, model)
-    df_assigned.index = df.index
+    df_assigned.index = nans.index
     print('Outputting...')
     df_assigned.to_csv('som_clusters.csv')
 
