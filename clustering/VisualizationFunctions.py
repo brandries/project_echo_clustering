@@ -70,7 +70,8 @@ class AnalyzeClusters(object):
         import matplotlib.pyplot as plt
         for i, j in cluster_dfs.items():
             f, ax = plt.subplots(figsize=(15,10))
-            df = j[[variable, 'tran_date']].groupby('tran_date').mean().rolling(period).mean()
+            df = j[[variable, 'tran_date']].groupby('tran_date').mean()\
+            .rolling(period).mean()
             df.set_index(pd.to_datetime(df.index), inplace=True)
             df.columns = ['Rolling {} level'.format(variable)]
             df2 = j[[variable, 'tran_date']].groupby('tran_date').count()
@@ -79,6 +80,22 @@ class AnalyzeClusters(object):
             if plot_second == True:
                 df2.plot(kind='line', ax=ax)
             df.plot(ax=ax, secondary_y=True, color='r')
+            plt.title(i)
+            plt.show()
+
+    def plot_double_rolling_mean(self, cluster_dfs, variable='sales',
+                                 plot_second = False, period=7):
+        import pandas as pd
+        import matplotlib.pyplot as plt
+        for i, j in cluster_dfs.items():
+            f, ax = plt.subplots(figsize=(15,10))
+            df = j[variable+ ['tran_date']].groupby('tran_date').mean()\
+            .rolling(period).mean()
+            df.set_index(pd.to_datetime(df.index), inplace=True)
+            df.columns = [variable]
+            if plot_second == True:
+                df[variable[0]].plot(kind='line', ax=ax)
+            df[variable[1]].plot(ax=ax, secondary_y=True, color='r')
             plt.title(i)
             plt.show()
 
