@@ -69,7 +69,7 @@ def main():
     print('There are {} samples'.format(len(use_df)))
     X = scaler.fit_transform(use_df)
     dr = DimensionalityReduction()
-    tsne = umap.UMAP(n_neighbors = 30, min_dist=0.0, n_components=50)
+    tsne = umap.UMAP(n_neighbors = 2, min_dist=0.0, n_components=10)
     tsne = dr.run_dimred(X, tsne)
     plot_df = pd.DataFrame(tsne).join(df.reset_index())
     cl = Clustering()

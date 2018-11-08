@@ -81,7 +81,7 @@ class BuildSOM(object):
 
 def main():
     show_plots = False
-    subset = 'nan'
+    subset = 'none'
     df = pd.read_csv('extracted_features.csv')
     df.set_index('id', inplace=True)
     df.dropna(axis=1, inplace=True)
