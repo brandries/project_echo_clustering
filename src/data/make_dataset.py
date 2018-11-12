@@ -7,11 +7,12 @@ def main():
     df = pd.read_csv('../../data/complete_df_7.csv')
     if df.columns[0] == 'Unnamed: 0':
         df.drop('Unnamed: 0', axis=1, inplace=True)
-    df['stock_open'] = df['stock_open'].astype(float)
+    if 'stock_open' in df.columns:
+        df['stock_open'] = df['stock_open'].astype(float)
     #aggregate to the product level across stores
     aggregate = df.groupby(['sku_key', 'tran_date'])\
     .agg({'sales':'sum', 'selling_price':'mean',
-          'avg_discount': 'mean', 'stock_open': 'sum'})
+          'avg_discount': 'mean', 'stock_open': 'mean'})
     aggregate.reset_index(inplace=True)
 
     #Get the categorical variables for each product
