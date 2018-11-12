@@ -70,7 +70,7 @@ class BuildSOM(object):
         sm = SOMFactory().build(X, normalization = 'var',
                                 mapsize=(15,15), initialization='pca')
         sm.train(n_job=1, verbose='info',
-                 train_rough_len=100, train_finetune_len=200)
+                 train_rough_len=200, train_finetune_len=100)
 
         topographic_error = sm.calculate_topographic_error()
         quantization_error = np.mean(sm._bmu[1])
@@ -88,17 +88,17 @@ def main():
     df.set_index('id', inplace=True)
     df.dropna(axis=1, inplace=True)
     scaler = StandardScaler()
-    print('There are {} samples'.format(len(use_df)))
-    X = scaler.fit_transform(use_df)
+    print('There are {} samples'.format(len(df)))
+    X = scaler.fit_transform(df)
     som = BuildSOM()
     model = som.build_som(X)
     if show_plots == True:
         plot_figures(sm)
     print('Getting optimal K-clusters...')
-    nclus = 6
+    nclus = 4
     clusters = model.cluster(n_clusters=nclus)
     df_assigned = assign_from_som(clusters, model)
-    df_assigned.index = use_df.index
+    df_assigned.index = df.index
     print('Outputting...')
     df_assigned.to_csv('som_clusters.csv')
 
