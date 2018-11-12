@@ -78,13 +78,16 @@ class BuildSOM(object):
         .format(topographic_error,quantization_error))
         return sm
 
+# TODO: change function to take in input from stdin instead of being specified
+# in the script
 
 def main():
     show_plots = False
     subset = 'none'
-    df = pd.read_csv('extracted_features.csv')
+    df = pd.read_csv('../../data/processed/shoe_extracted_features.csv')
     df.set_index('id', inplace=True)
     df.dropna(axis=1, inplace=True)
+    scaler = StandardScaler()
     print('There are {} samples'.format(len(use_df)))
     X = scaler.fit_transform(use_df)
     som = BuildSOM()
