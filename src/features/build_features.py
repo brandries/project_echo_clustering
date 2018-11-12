@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from tsfresh import extract_features
-from dynamic_time_warping import Preprocessing
+from src.models.dynamic_time_warping import Preprocessing
 
 def main():
     aggregate_df = pd.read_csv('aggregate_products.csv')

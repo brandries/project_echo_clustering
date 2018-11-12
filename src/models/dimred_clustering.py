@@ -7,7 +7,7 @@ from sklearn.manifold import TSNE
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.preprocessing import RobustScaler, StandardScaler
 import hdbscan
-from dynamic_time_warping import *
+from src.models.dynamic_time_warping import *
 
 class DataPreprocess(object):
     def __init__(self):

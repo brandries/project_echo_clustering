@@ -9,7 +9,7 @@ from sompy.visualization.bmuhits import BmuHitsView
 from sompy.visualization.hitmap import HitMapView
 from dimred_clustering import DataPreprocess
 from sklearn.preprocessing import RobustScaler, StandardScaler
-from dynamic_time_warping import Preprocessing
+from src.models.dynamic_time_warping import Preprocessing
 
 def knn_elbow(df, k_range=20, plot=False):
     from sklearn.cluster import KMeans

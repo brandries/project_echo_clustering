@@ -6,7 +6,7 @@ from dtaidistance import dtw, dtw_visualisation, clustering
 from dtaidistance import dtw_visualisation as dtwvis
 from sklearn.preprocessing import RobustScaler, StandardScaler
 import pickle
-from dimred_clustering import *
+from src.models.dimred_clustering import *
 run_plots = False
 
 class Preprocessing(object):
