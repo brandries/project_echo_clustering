@@ -85,18 +85,6 @@ def main():
     df = pd.read_csv('extracted_features.csv')
     df.set_index('id', inplace=True)
     df.dropna(axis=1, inplace=True)
-    pp = Preprocessing()
-    feat = pd.read_csv('aggregate_products.csv')
-    pivot = pp.pivot_table(feat)
-    sorted = pp.sort_nas(pivot)
-    pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(sorted, df)
-    scaler = StandardScaler()
-    if subset == 'nan':
-        use_df = nans
-    elif subset == 'no_nans':
-        use_df = no_nans
-    elif subset == 'none':
-        use_df = df
     print('There are {} samples'.format(len(use_df)))
     X = scaler.fit_transform(use_df)
     som = BuildSOM()
