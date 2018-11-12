@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from tsfresh import extract_features
 from dynamic_time_warping import Preprocessing
 
-
 def main():
     df = pd.read_csv('complete_df_7.csv')
     if df.columns[0] == 'Unnamed: 0':
@@ -26,6 +25,7 @@ def main():
     for i in categorical['sku_key'].unique():
         nw_df = pd.concat([nw_df, pd.DataFrame(categorical[categorical['sku_key'] == i].iloc[0]).T])
     nw_df.reset_index(inplace=True, drop=True)
+    nw_df.to_csv('sku_labels.csv', index=False)
 
     #Join aggregate product to the categorical variables
     aggregate['sku_key'] = aggregate['sku_key'].astype(int)
@@ -41,24 +41,13 @@ def main():
                                           column_sort="tran_date")
     extracted_features.to_csv('extracted_features.csv')
 
-    #Extract the categorical features for each SKU and save
-    categorical = aggregate_df[['sku_key', 'sku_department',
-                                'sku_subdepartment', 'sku_category',
-                                'sku_subcategory', 'sku_label']]
-    nw_df = pd.DataFrame([], columns=['sku_key', 'sku_department',
-                                      'sku_subdepartment', 'sku_category',
-                                      'sku_subcategory', 'sku_label'])
-    for i in categorical['sku_key'].unique():
-        nw_df = pd.concat([nw_df, pd.DataFrame(categorical[categorical['sku_key'] == i].iloc[0]).T])
-    nw_df.reset_index(inplace=True, drop=True)
-    nw_df.to_csv('sku_labels.csv', index=False)
-
     #Pivot Table and save dfs with and without nans
     pp = Preprocessing()
     pivot_table = pp.pivot_table(aggregate_df)
     sorted_df = pp.sort_nas(pivot_table)
     pp.make_diff_length_list(sorted_df)
-    pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(pivot_table, extracted_features)
+    pivot_nans, nans, pivot_no_nans, no_nans = pp.split_nans(pivot_table,
+                                                             extracted_features)
 
     pivot_table.to_csv('pivot_table.csv')
     pivot_nans.to_csv('nans_pivot_table.csv')
