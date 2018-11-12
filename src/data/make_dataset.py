@@ -4,7 +4,7 @@ import numpy as np
 
 
 def main():
-    df = pd.read_csv('complete_df_7.csv')
+    df = pd.read_csv('../../data/complete_df_7.csv')
     if df.columns[0] == 'Unnamed: 0':
         df.drop('Unnamed: 0', axis=1, inplace=True)
     df['stock_open'] = df['stock_open'].astype(float)
